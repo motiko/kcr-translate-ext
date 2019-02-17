@@ -1,4 +1,4 @@
-setTimeout(() => inject(bookmarklet), 5000);
+setTimeout(() => inject(bookmarklet), 2000); // TODO: find right event to wait for
 function inject(fn) {
   var script = document.createElement("script");
   script.setAttribute("type", "application/javascript");
@@ -9,67 +9,61 @@ function inject(fn) {
 
 /* based on https://learnoutlive.com/apps/kindle_hack.js */
 function bookmarklet() {
-  var w = null;
-  var kDoc = null;
-  var kObj = null;
-
-  if (typeof window.KindleReaderContextMenu !== "undefined") {
-    w = window;
-  } else if (window.length) {
-    for (var i = 0; i < window.length; i++) {
-      if (typeof window[i].KindleReaderContextMenu !== "undefined") {
-        w = window[i];
-        break;
+  const windowWithKindleReader = () => {
+    if (typeof window.KindleReaderContextMenu !== "undefined") {
+      return window;
+    } else if (window.length) {
+      for (var i = 0; i < window.length; i++) {
+        if (typeof window[i].KindleReaderContextMenu !== "undefined") {
+          return window[i];
+        }
       }
     }
-  }
-  if (typeof w === "object") {
-    kObj = w.KindleReaderContextMenu;
-    kDoc = w.document;
+  };
 
-    if (typeof kObj.ACRExtensions === "undefined") {
-      kObj.ACRExtensions = true;
-      kObj.show = function() {
-        var txtDoc = null;
-        var r = null;
+  const {
+    document: kDoc,
+    KindleReaderContextMenu
+  } = windowWithKindleReader();
 
-        if (
-          typeof arguments[3] !== "undefined" &&
-          typeof arguments[3]["start"] !== "undefined"
-        ) {
-          var sId = arguments[3]["start"];
-          var eId = arguments[3]["end"];
+  if (!KindleReaderContextMenu.ARTranslate) {
+    KindleReaderContextMenu.ARTranslate = true;
+    KindleReaderContextMenu.show = function() {
+      var iframeWithText = null;
+      var selectedText = null;
 
-          $("iframe", kDoc).each(function(j, textIframe) {
-            var textIFrameDoc = $(textIframe)
-              .contents()
-              .get(0);
-            if ($("#" + sId, textIFrameDoc).get(0)) {
-              txtDoc = textIFrameDoc;
-              return false;
-            }
-          });
+      if (
+        typeof arguments[3] !== "undefined" &&
+        typeof arguments[3]["start"] !== "undefined"
+      ) {
+        var sId = arguments[3]["start"];
+        var eId = arguments[3]["end"];
 
-          if (txtDoc) {
-            r = txtDoc.createRange();
-            r.setStartBefore($("#" + sId, txtDoc).get(0));
-            r.setEndAfter($("#" + eId, txtDoc).get(0));
-            var newW = window.open(
-              "https://translate.google.com/?hl=en#auto/en/" + r,
-              "Google Translate",
-              "height=400,width=776,location=0,menubar=0,scrollbars=1,toolbar=0"
-            );
+        $("iframe", kDoc).each(function(j, textIframe) {
+          var textIFrameDoc = $(textIframe)
+            .contents()
+            .get(0);
+          if ($("#" + sId, textIFrameDoc).get(0)) {
+            iframeWithText = textIFrameDoc;
+            return false;
           }
-        }
-      };
+        });
 
-      console.log("Kindle Translator Extension is now active.");
-    } else {
-      console.log("Kindle Translator Extension is already active.");
-    }
+        if (iframeWithText) {
+          selectedText = iframeWithText.createRange();
+          selectedText.setStartBefore($("#" + sId, iframeWithText).get(0));
+          selectedText.setEndAfter($("#" + eId, iframeWithText).get(0));
+          window.open(
+            "https://translate.google.com/?hl=en#auto/en/" + selectedText,
+            "Google Translate",
+            "height=400,width=776,location=0,menubar=0,scrollbars=1,toolbar=0"
+          );
+        }
+      }
+    };
+
+    console.log("Kindle Translator Extension is now active.");
   } else {
-    console.log(
-      "Error: Kindle Translator Extension is not active. The Amazon Cloud Reader window could not be found."
-    );
+    console.log("Kindle Translator Extension is already active.");
   }
 }
