@@ -1,9 +1,9 @@
 {
   "version": "0.0.1",
-  "name": "Amazon Reader Translate",
-  "short_name": "AR Translate",
+  "name": "Kindle Cloud Reader Translate",
+  "short_name": "KCR Translate",
   "manifest_version": 2,
-  "description": "Translate directly from amazon reader",
+  "description": "Translate directly from kindle cloud reader reader",
   "author": "Moti Korets",
   "content_security_policy": "default-src 'self'; script-src 'self';",
    "content_scripts": [{
