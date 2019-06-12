@@ -1,4 +1,5 @@
-setTimeout(() => inject(bookmarklet), 2000); // TODO: find right event to wait for
+setTimeout(() => inject(main), 2000); // TODO: find right event to wait for
+
 function inject(fn) {
   var script = document.createElement("script");
   script.setAttribute("type", "application/javascript");
@@ -7,8 +8,7 @@ function inject(fn) {
   document.body.removeChild(script); // clean up
 }
 
-/* based on https://learnoutlive.com/apps/kindle_hack.js */
-function bookmarklet() {
+function main() {
   const windowWithKindleReader = () => {
     if (typeof window.KindleReaderContextMenu !== "undefined") {
       return window;
@@ -26,8 +26,8 @@ function bookmarklet() {
     KindleReaderContextMenu
   } = windowWithKindleReader();
 
-  if (!KindleReaderContextMenu.ARTranslate) {
-    KindleReaderContextMenu.ARTranslate = true;
+  if (!KindleReaderContextMenu.MKTranslate) {
+    KindleReaderContextMenu.MKTranslate = true;
     KindleReaderContextMenu.show = function() {
       var iframeWithText = null;
       var selectedText = null;
@@ -61,7 +61,6 @@ function bookmarklet() {
         }
       }
     };
-
     console.log("Kindle Translator Extension is now active.");
   } else {
     console.log("Kindle Translator Extension is already active.");

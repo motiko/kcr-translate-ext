@@ -11,7 +11,7 @@
         "https://read.amazon.com/"
       ],
       "js": [
-        "translate.js"
+        "index.js"
       ],
       "run_at": "document_end"
     }
