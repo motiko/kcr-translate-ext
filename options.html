@@ -1,0 +1,32 @@
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Kindle Cloud Reader Translate</title>
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/skeleton.css">
+    <link rel="stylesheet" href="css/options.css">
+    <link rel="icon" type="image/png" href="img/book_16.png">
+  </head>
+  <body>
+    <div class="section">
+      <div class="container">
+        <form id="shortcutsForm">
+          <div class="row container center-content" >
+            <select id="translate_engine">
+              <option value="google">Google Translate</option>
+              <option value="dict.cc">dict.cc</option>
+              <option value="custom">Custom</option>
+            </select>
+            <input class="u-full-width" type="text" title="Url" label="URL" id="url"/>
+            <div class="row container center-content" >
+              <a id="restore_defaults_btn" class="button-primary button" href="./options.html">Restore</a>
+              <a id="save_btn" class="button-primary button" href="./options.html"> Save </a>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    <script type="text/javascript" src="browser-polyfill-0.2.1.js"></script>
+    <script type="text/javascript" src="options.js"></script>
+  </body>
+</html>
