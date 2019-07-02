@@ -35,6 +35,7 @@
    ],
 
   "permissions": [
-    "https://read.amazon.com/"
+    "https://read.amazon.com/",
+    "storage"
   ]
 }
