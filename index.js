@@ -6,7 +6,7 @@ browser.storage.sync.get("translateEngines").then(({ translateEngines }) => {
   };
   settings = translateEngines.find(e => e.selected);
   injectGlobalVar("MKTSettings", settings);
-  setTimeout(() => inject(main), 2000); // TODO: find right event to wait for
+  inject(main);
 });
 
 function inject(fn) {
@@ -26,7 +26,7 @@ function injectGlobalVar(name, value) {
 }
 
 function main() {
-  const windowWithKindleReader = () => {
+  const getWindowWithKindleReader = () => {
     if (typeof window.KindleReaderContextMenu !== "undefined") {
       return window;
     } else if (window.length) {
@@ -38,7 +38,14 @@ function main() {
     }
   };
 
-  const { document: kDoc, KindleReaderContextMenu } = windowWithKindleReader();
+  const windowWithKindleReader = getWindowWithKindleReader();
+  if (!windowWithKindleReader) {
+    console.log('Kindle Readed Widnow not found: trying again in 1 second..')
+    setTimeout(main, 1000);
+    return;
+  }
+
+  const { document: kDoc, KindleReaderContextMenu } = windowWithKindleReader;
 
   if (!KindleReaderContextMenu.MKTranslate) {
     KindleReaderContextMenu.MKTranslate = true;
