@@ -36,8 +36,23 @@ function load() {
     );
     $i("translate_engine").addEventListener("change", setUrlByEngine);
     $i("save_btn").addEventListener("click", saveSettings);
+    $i("restore_defaults_btn").addEventListener(
+      "click",
+      restoreDefaultSettings
+    );
     setUrlByEngine();
   });
+}
+
+function restoreDefaultSettings() {
+  browser.storage.sync
+    .set({
+      translateEngines: defaultTranslateEngines
+    })
+    .then(() => {
+      $i("saved_message").classList.remove("hidden");
+      setTimeout(() => window.location.reload(), 1500);
+    });
 }
 
 function setUrl(event) {
@@ -70,6 +85,10 @@ function saveSettings() {
   browser.storage.sync.set({
     translateEngines: curTranslateEngines
   });
+  showMessage();
+}
+
+function showMessage() {
   $i("saved_message").classList.remove("hidden");
   setTimeout(() => $i("saved_message").classList.add("hidden"), 2500);
 }
