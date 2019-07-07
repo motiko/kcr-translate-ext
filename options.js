@@ -70,4 +70,6 @@ function saveSettings() {
   browser.storage.sync.set({
     translateEngines: curTranslateEngines
   });
+  $i("saved_message").classList.remove("hidden");
+  setTimeout(() => $i("saved_message").classList.add("hidden"), 2500);
 }
