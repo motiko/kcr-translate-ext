@@ -67,5 +67,7 @@ function saveSettings() {
   curTranslateEngines.forEach(engine => (engine.selected = false));
   selectedEngine["selected"] = true;
   selectedEngine["url"] = $i("url").value;
-  browser.storage.sync.set({ translateEngines: curTranslateEngines });
+  browser.storage.sync.set({
+    translateEngines: curTranslateEngines
+  });
 }

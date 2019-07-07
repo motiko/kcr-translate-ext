@@ -17,25 +17,16 @@
     "page": "options.html"
   },
   "background": {
-    "scripts": [
-      "browser-polyfill-0.2.1.js",
-      "background.js"
-    ],
+    "scripts": ["browser-polyfill-0.2.1.js", "background.js"],
     "persistent": false
   },
-   "content_scripts": [{
-      "matches": [
-        "https://read.amazon.com/"
-      ],
-      "js": [
-        "index.js"
-      ],
+  "content_scripts": [
+    {
+      "matches": ["https://read.amazon.com/"],
+      "js": ["browser-polyfill-0.2.1.js", "index.js"],
       "run_at": "document_end"
     }
-   ],
+  ],
 
-  "permissions": [
-    "https://read.amazon.com/",
-    "storage"
-  ]
+  "permissions": ["https://read.amazon.com/", "storage"]
 }
