@@ -3,7 +3,7 @@
   "name": "Kindle Cloud Reader Translate",
   "short_name": "KCR Translate",
   "manifest_version": 2,
-  "description": "Translate directly from kindle cloud reader reader",
+  "description": "Translate directly from kindle cloud reader",
   "author": "Moti Korets",
   "content_security_policy": "default-src 'self'; script-src 'self';",
   "icons": {
