@@ -5,22 +5,14 @@ browser.storage.sync.get("translateEngines").then(({ translateEngines }) => {
     url: "https://translate.google.com/?hl=en#auto/en/"
   };
   settings = translateEngines.find(e => e.selected);
-  injectGlobalVar("MKTSettings", settings);
   inject(main);
+  window.postMessage(settings, "https://read.amazon.com");
 });
 
 function inject(fn) {
   var script = document.createElement("script");
   script.setAttribute("type", "application/javascript");
   script.textContent = "(" + fn + ")();";
-  document.body.appendChild(script); // run the script
-  document.body.removeChild(script); // clean up
-}
-
-function injectGlobalVar(name, value) {
-  var script = document.createElement("script");
-  script.setAttribute("type", "application/javascript");
-  script.textContent = `var ${name} = ${JSON.stringify(value)}`;
   document.body.appendChild(script); // run the script
   document.body.removeChild(script); // clean up
 }
@@ -38,9 +30,19 @@ function main() {
     }
   };
 
+  let settings = {
+    name: "google",
+    label: "Google Tranlsate",
+    url: "https://translate.google.com/?hl=en#auto/en/"
+  };
+  window.addEventListener("message", function(event) {
+    console.log("Settings loaded");
+    settings = event.data;
+  });
+
   const windowWithKindleReader = getWindowWithKindleReader();
   if (!windowWithKindleReader) {
-    console.log('Kindle Readed Widnow not found: trying again in 1 second..')
+    console.log("Kindle Readed Widnow not found: trying again in 1 second..");
     setTimeout(main, 1000);
     return;
   }
@@ -75,8 +77,8 @@ function main() {
           selectedText.setStartBefore($("#" + sId, iframeWithText).get(0));
           selectedText.setEndAfter($("#" + eId, iframeWithText).get(0));
           window.open(
-            MKTSettings.url + selectedText,
-            MKTSettings.label,
+            settings.url + selectedText,
+            settings.label,
             "height=400,width=776,location=0,menubar=0,scrollbars=1,toolbar=0"
           );
         }
