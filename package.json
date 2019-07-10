@@ -1,0 +1,28 @@
+{
+  "name": "kcr-translate-ext",
+  "version": "0.0.4",
+  "description": "[ACRExtensions](https://github.com/ccimpoi/ACRExtensions)   [André Klein's bookmarklet](https://learnoutlive.com/apps/kindle_hack.js)",
+  "main": "index.js",
+  "dependencies": {
+    "webextension-polyfill": "^0.4.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/motiko/kcr-translate-ext.git"
+  },
+  "keywords": [
+    "ecmascript",
+    "webextension",
+    "translate"
+  ],
+  "author": "motiko",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/motiko/kcr-translate-ext/issues"
+  },
+  "homepage": "https://github.com/motiko/kcr-translate-ext#readme"
+}
