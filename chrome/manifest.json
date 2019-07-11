@@ -1,5 +1,5 @@
 {
-  "version": "0.0.5",
+  "version": "0.0.6",
   "name": "Kindle Cloud Reader Translate",
   "short_name": "KCR Translate",
   "manifest_version": 2,
@@ -12,9 +12,6 @@
   },
   "browser_action": {
     "default_icon": "img/book_16.png"
-  },
-  "options_ui": {
-    "page": "options.html"
   },
   "background": {
     "scripts": ["background.js"],
