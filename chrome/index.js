@@ -1,13 +1,4 @@
-browser.storage.sync.get("translateEngines").then(({ translateEngines }) => {
-  let settings = {
-    name: "google",
-    label: "Google Tranlsate",
-    url: "https://translate.google.com/?hl=en#auto/en/"
-  };
-  settings = translateEngines.find(e => e.selected);
-  inject(main);
-  window.postMessage(settings, "https://read.amazon.com");
-});
+inject(main);
 
 function inject(fn) {
   var script = document.createElement("script");
@@ -30,16 +21,6 @@ function main() {
     }
   };
 
-  let settings = {
-    name: "google",
-    label: "Google Tranlsate",
-    url: "https://translate.google.com/?hl=en#auto/en/"
-  };
-  window.addEventListener("message", function(event) {
-    console.log("Settings loaded");
-    settings = event.data;
-  });
-
   const windowWithKindleReader = getWindowWithKindleReader();
   if (!windowWithKindleReader) {
     console.log("Kindle Readed Widnow not found: trying again in 1 second..");
@@ -48,7 +29,19 @@ function main() {
   }
 
   const { document: kDoc, KindleReaderContextMenu } = windowWithKindleReader;
-
+  let settings = {
+    name: "google",
+    label: "Google Tranlsate",
+    url: "https://translate.google.com/?hl=en#auto/en/"
+  };
+  chrome.runtime.sendMessage(
+    "ipalacjfeejceeogpnfaijpadginmfhk",
+    { command: "GET_SETTINGS" },
+    function(response) {
+      console.log(response);
+      settings = response;
+    }
+  );
   if (!KindleReaderContextMenu.MKTranslate) {
     KindleReaderContextMenu.MKTranslate = true;
     KindleReaderContextMenu.show = function() {

@@ -1,5 +1,5 @@
 {
-  "version": "0.0.4",
+  "version": "0.0.5",
   "name": "Kindle Cloud Reader Translate",
   "short_name": "KCR Translate",
   "manifest_version": 2,
@@ -17,16 +17,18 @@
     "page": "options.html"
   },
   "background": {
-    "scripts": ["browser-polyfill-0.2.1.js", "background.js"],
+    "scripts": ["background.js"],
     "persistent": false
   },
   "content_scripts": [
     {
       "matches": ["https://read.amazon.com/"],
-      "js": ["browser-polyfill-0.2.1.js", "index.js"],
+      "js": ["index.js"],
       "run_at": "document_end"
     }
   ],
-
+  "externally_connectable": {
+    "matches": ["https://read.amazon.com/"]
+  },
   "permissions": ["https://read.amazon.com/", "storage"]
 }

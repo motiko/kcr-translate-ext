@@ -1,14 +1,14 @@
 let appTabIds = {};
 
 function focusTab(tabId) {
-  browser.tabs.get(tabId).then(tab => {
+  chrome.tabs.get(tabId, tab => {
     if (tab)
-      browser.tabs.update(tab.id, {
+      chrome.tabs.update(tab.id, {
         active: true
       });
-    browser.windows.getCurrent({}).then(currentWindow => {
+    chrome.windows.getCurrent({}, currentWindow => {
       if (tab.windowId != currentWindow.id) {
-        browser.windows.update(tab.windowId, {
+        chrome.windows.update(tab.windowId, {
           focused: true
         });
       }
@@ -25,19 +25,20 @@ function openOrFocusTab(url, name) {
 }
 
 function openTab(url, name) {
-  browser.tabs
-    .create({
+  chrome.tabs.create(
+    {
       url: url,
       selected: true
-    })
-    .then(tab => (appTabIds[name] = tab.id));
+    },
+    tab => (appTabIds[name] = tab.id)
+  );
 }
 
-browser.browserAction.onClicked.addListener(() =>
-  openOrFocusTab(browser.extension.getURL("options.html"), "options")
+chrome.browserAction.onClicked.addListener(() =>
+  openOrFocusTab(chrome.extension.getURL("options.html"), "options")
 );
 
-browser.tabs.onRemoved.addListener((tabId, changeInfo, tab) => {
+chrome.tabs.onRemoved.addListener((tabId, changeInfo, tab) => {
   if (Object.values(appTabIds).indexOf(tabId) > -1) {
     Object.keys(appTabIds)
       .filter(key => appTabIds[key] == tabId)
@@ -45,3 +46,21 @@ browser.tabs.onRemoved.addListener((tabId, changeInfo, tab) => {
   }
 });
 
+chrome.runtime.onMessageExternal.addListener(function(
+  request,
+  sender,
+  sendResponse
+) {
+  if (request.command === "GET_SETTINGS") {
+    chrome.storage.sync.get("translateEngines", ({ translateEngines }) => {
+      let settings = translateEngines
+        ? translateEngines.find(e => e.selected)
+        : {
+            name: "google",
+            label: "Google Tranlsate",
+            url: "https://translate.google.com/?hl=en#auto/en/"
+          };
+      sendResponse(settings);
+    });
+  }
+});
