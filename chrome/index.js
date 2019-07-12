@@ -39,7 +39,9 @@ function main() {
     { command: "GET_SETTINGS" },
     function(response) {
       console.log(response);
-      settings = response;
+      if(response){
+        settings = response;
+      }
     }
   );
   if (!KindleReaderContextMenu.MKTranslate) {

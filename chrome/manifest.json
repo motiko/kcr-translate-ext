@@ -6,6 +6,7 @@
   "description": "Translate directly from kindle cloud reader",
   "author": "Moti Korets",
   "content_security_policy": "default-src 'self'; script-src 'self';",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAp7w6hKdg7o7PGZpkTZ1XkZ9mjGAUDXdO7BVou7skvC8t1+15QWdL8KSv5QPolYIItem5EkfEf7DkezdSR4GvGCW+TTJQ9jIjx2yPqei3//c+/yOfanFYey5L2C8l08W9Bfy+hxe3M8UoOGppn6/NLMZ9iJ3E2g+fp90jtFNGetNbe9dWHwcWLLRrytgwfKRu00pkPWX/klZXrj/CbPzQHGe5cYOWZHeyeDSOxYcawoDKV8y4CEhjYPZC3Y76tKogMiCPwkACjpbRbqCN/DPLR+UTUN4eIFqT2kSwcMOY9DIxFqwMi50nZ7PdW+4bG8V1UPfNwzYgTPcM4/VrtooTQwIDAQAB",
   "icons": {
     "16": "img/book_16.png",
     "128": "img/book_128.png"
