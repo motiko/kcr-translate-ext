@@ -1,5 +1,6 @@
 .section {
   padding: 6rem 0 5rem;
+  min-width: 600px;
 }
 
 .center-content {

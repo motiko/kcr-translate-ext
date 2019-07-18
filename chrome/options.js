@@ -26,11 +26,11 @@ let curTranslateEngines = defaultTranslateEngines;
 window.onload = load;
 
 function load() {
-  chrome.storage.sync.get("translateEngines",({ translateEngines }) => {
+  chrome.storage.sync.get("translateEngines", ({ translateEngines }) => {
     curTranslateEngines = translateEngines || defaultTranslateEngines;
     curTranslateEngines.forEach(
       engine =>
-      ($i("translate_engine").innerHTML += `<option value="${
+        ($i("translate_engine").innerHTML += `<option value="${
           engine.name
         }" ${engine.selected && "selected"}>${engine.label}</option>`)
     );
@@ -82,9 +82,12 @@ function saveSettings() {
   curTranslateEngines.forEach(engine => (engine.selected = false));
   selectedEngine["selected"] = true;
   selectedEngine["url"] = $i("url").value;
-  chrome.storage.sync.set({
-    translateEngines: curTranslateEngines
-  });
+  chrome.storage.sync.set(
+    {
+      translateEngines: curTranslateEngines
+    },
+    chrome.runtime.sendMessage({ command: "RELOAD_SCRIPT" })
+  );
   showMessage();
 }
 

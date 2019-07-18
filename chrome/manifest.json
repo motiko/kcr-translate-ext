@@ -11,8 +11,9 @@
     "16": "img/book_16.png",
     "128": "img/book_128.png"
   },
-  "browser_action": {
-    "default_icon": "img/book_16.png"
+  "page_action": {
+    "default_icon": "img/book_16.png",
+    "default_popup": "options.html"
   },
   "options_ui": {
     "page": "options.html"
@@ -31,5 +32,5 @@
   "externally_connectable": {
     "matches": ["https://read.amazon.com/"]
   },
-  "permissions": ["https://read.amazon.com/", "storage"]
+  "permissions": ["https://read.amazon.com/", "storage","activeTab"]
 }

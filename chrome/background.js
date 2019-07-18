@@ -1,51 +1,3 @@
-let appTabIds = {};
-
-function focusTab(tabId) {
-  chrome.tabs.get(tabId, tab => {
-    if (tab)
-      chrome.tabs.update(tab.id, {
-        active: true
-      });
-    chrome.windows.getCurrent({}, currentWindow => {
-      if (tab.windowId != currentWindow.id) {
-        chrome.windows.update(tab.windowId, {
-          focused: true
-        });
-      }
-    });
-  });
-}
-
-function openOrFocusTab(url, name) {
-  if (appTabIds[name]) {
-    focusTab(appTabIds[name]);
-  } else {
-    openTab(url, name);
-  }
-}
-
-function openTab(url, name) {
-  chrome.tabs.create(
-    {
-      url: url,
-      selected: true
-    },
-    tab => (appTabIds[name] = tab.id)
-  );
-}
-
-chrome.browserAction.onClicked.addListener(() =>
-  openOrFocusTab(chrome.extension.getURL("options.html"), "options")
-);
-
-chrome.tabs.onRemoved.addListener((tabId, changeInfo, tab) => {
-  if (Object.values(appTabIds).indexOf(tabId) > -1) {
-    Object.keys(appTabIds)
-      .filter(key => appTabIds[key] == tabId)
-      .forEach(key => (appTabIds[key] = undefined));
-  }
-});
-
 chrome.runtime.onMessageExternal.addListener(function(
   request,
   sender,
@@ -61,6 +13,17 @@ chrome.runtime.onMessageExternal.addListener(function(
             url: "https://translate.google.com/?hl=en#auto/en/"
           };
       sendResponse(settings);
+    });
+  }
+});
+
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+  if (request.command === "ACTIVATE_PAGE_ACTION") {
+    chrome.pageAction.show(sender.tab.id);
+  }
+  if (request.command == "RELOAD_SCRIPT") {
+    chrome.tabs.executeScript({
+      file: "index.js"
     });
   }
 });
