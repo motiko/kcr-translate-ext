@@ -14,14 +14,94 @@
           <div class="row container center-content" >
             <select id="translate_engine">
             </select>
-            <input class="u-full-width" type="text" title="Url" label="URL" id="url"/>
+            <label for="url">Url</label>
+            <input class="u-full-width" type="text" label="URL" id="url"/>
+            <div class="hidden" id="google_lang_controls">
+              <label for="src_lang">Translate from</label>
+              <input list="google_languages" type="text" label="Translate from" id="src_lang"/>
+              <label for="destination_lang">Translate to</label>
+              <input list="google_languages" type="text" label="Translate to" id="destination_lang"/>
+            </div>
+            <datalist id="google_languages">
+              <option value="Automatic Detection" label="auto">
+              <option value="Afrikaans" label="af">
+              <option value="Albanian" label="sq">
+              <option value="Arabic" label="ar">
+              <option value="Azerbaijani" label="az">
+              <option value="Basque" label="eu">
+              <option value="Bengali" label="bn">
+              <option value="Belarusian" label="be">
+              <option value="Bulgarian" label="bg">
+              <option value="Catalan" label="ca">
+              <option value="Chinese Simplified" label="zh-CN">
+              <option value="Chinese Traditional" label="zh-TW">
+              <option value="Croatian" label="hr">
+              <option value="Czech" label="cs">
+              <option value="Danish" label="da">
+              <option value="Dutch" label="nl">
+              <option value="English" label="en">
+              <option value="Esperanto" label="eo">
+              <option value="Estonian" label="et">
+              <option value="Filipino" label="tl">
+              <option value="Finnish" label="fi">
+              <option value="French" label="fr">
+              <option value="Galician" label="gl">
+              <option value="Georgian" label="ka">
+              <option value="German" label="de">
+              <option value="Greek" label="el">
+              <option value="Gujarati" label="gu">
+              <option value="Haitian Creole" label="ht">
+              <option value="Hebrew" label="iw">
+              <option value="Hindi" label="hi">
+              <option value="Hungarian" label="hu">
+              <option value="Icelandic" label="is">
+              <option value="Indonesian" label="id">
+              <option value="Irish" label="ga">
+              <option value="Italian" label="it">
+              <option value="Japanese" label="ja">
+              <option value="Kannada" label="kn">
+              <option value="Korean" label="ko">
+              <option value="Latin" label="la">
+              <option value="Latvian" label="lv">
+              <option value="Lithuanian" label="lt">
+              <option value="Macedonian" label="mk">
+              <option value="Malay" label="ms">
+              <option value="Maltese" label="mt">
+              <option value="Norwegian" label="no">
+              <option value="Persian" label="fa">
+              <option value="Polish" label="pl">
+              <option value="Portuguese" label="pt">
+              <option value="Romanian" label="ro">
+              <option value="Russian" label="ru">
+              <option value="Serbian" label="sr">
+              <option value="Slovak" label="sk">
+              <option value="Slovenian" label="sl">
+              <option value="Spanish" label="es">
+              <option value="Swahili" label="sw">
+              <option value="Swedish" label="sv">
+              <option value="Tamil" label="ta">
+              <option value="Telugu" label="te">
+              <option value="Thai" label="th">
+              <option value="Turkish" label="tr">
+              <option value="Ukrainian" label="uk">
+              <option value="Urdu" label="ur">
+              <option value="Vietnamese" label="vi">
+              <option value="Welsh" label="cy">
+              <option value="Yiddish" label="yi">
+            </datalist>  
             <div class="row container center-content" >
               <a id="restore_defaults_btn" class="button-primary button">Restore Defaults</a>
               <a id="save_btn" class="button-primary button">Save </a>
             </div>
             <div class="row container center-content" >
-              <div class="hidden" id="saved_message" >
+              <div class="opaque message" id="saved_message" >
                 Settings saved.
+              </div>
+              <div class="opaque message" id="defaults_restored_message" >
+                Default settings restored.
+              </div>
+              <div class="opaque message error" id="error_message" >
+                An error occured, try restoring default settings.
               </div>
             </div>
           </div>

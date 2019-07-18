@@ -7,7 +7,7 @@
   text-align: center;
 }
 
-#saved_message {
+.message {
   background: lightgoldenrodyellow;
   border: 1px dotted #eee;
   border-radius: 6px;
@@ -15,6 +15,14 @@
   transition: opacity 1s ease-in-out;
 }
 
-.hidden {
+.opaque {
   opacity: 0;
+}
+
+.hidden {
+  display: none
+}
+
+.message.error{
+  background: indianred;
 }
