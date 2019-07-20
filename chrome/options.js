@@ -92,7 +92,7 @@ let curTranslateEngines = defaultTranslateEngines;
 
 window.onload = load;
 
-function load() {
+function load(onDoneLoading) {
   chrome.storage.sync.get("translateEngines", ({ translateEngines }) => {
     curTranslateEngines = translateEngines || defaultTranslateEngines;
     $i("translate_engine").innerHTML = "";
@@ -111,6 +111,9 @@ function load() {
       restoreDefaultSettings
     );
     onChangeEngine();
+    if (onDoneLoading && typeof onDoneLoading === "function") {
+      onDoneLoading();
+    }
   });
 }
 
@@ -149,7 +152,7 @@ function restoreDefaultSettings() {
     },
     () => {
       showMessage("defaults_restored_message");
-      setTimeout(() => load(), 1500);
+      setTimeout(() => load(saveSettings), 1500);
     }
   );
 }
