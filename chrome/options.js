@@ -116,8 +116,8 @@ function load() {
 
 function onDestinationLangChange(event) {
   const prevUrl = $i("url").value;
-  if(!prevUrl.match(/(#\w+\/)\w+\//)){
-    showMessage("error_message")
+  if (!prevUrl.match(/(#\w+\/)\w+\//)) {
+    showMessage("error_message");
     return;
   }
   const langName = event.target.value;
@@ -130,8 +130,8 @@ function onDestinationLangChange(event) {
 
 function onSrcLangChange(event) {
   const prevUrl = $i("url").value;
-  if(!prevUrl.match(/\#\w+\//)){
-    showMessage("error_message")
+  if (!prevUrl.match(/\#\w+\//)) {
+    showMessage("error_message");
     return;
   }
   const langName = event.target.value;
