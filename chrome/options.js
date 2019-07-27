@@ -106,6 +106,7 @@ function load(onDoneLoading) {
     $i("save_btn").addEventListener("click", saveSettings);
     $i("src_lang").addEventListener("change", onSrcLangChange);
     $i("destination_lang").addEventListener("change", onDestinationLangChange);
+    $i("dict_cc_dictionaries").addEventListener("change", onDictChange);
     $i("restore_defaults_btn").addEventListener(
       "click",
       restoreDefaultSettings
@@ -145,6 +146,12 @@ function onSrcLangChange(event) {
   $i("url").value = newUrl;
 }
 
+function onDictChange(event) {
+  const dictName= event.target.value;
+  const newUrl = `http://${dictName}.pocket.dict.cc/?s=`;
+  $i("url").value = newUrl;
+}
+
 function restoreDefaultSettings() {
   chrome.storage.sync.set(
     {
@@ -175,11 +182,19 @@ function onChangeEngine() {
   ).url;
   $i("url").value = selectedEngineUrl;
   $i("google_lang_controls").classList.add("hidden");
+  $i("dictcc_lang_controls").classList.add("hidden");
   if (selectedEngineName === "google") {
     $i("google_lang_controls").classList.remove("hidden");
     const { from, to } = getLanguagesFromGoogleUrl(selectedEngineUrl);
     $i("src_lang").value = from;
     $i("destination_lang").value = to;
+  }
+  if (selectedEngineName === "dict") {
+    $i("dictcc_lang_controls").classList.remove("hidden");
+    const match = selectedEngineUrl.match(/:\/\/([a-zA-z-]+)\.pocket/)
+    if(match){
+      $i("dict_cc_dictionaries").value = match[1];
+    }
   }
 }
 
