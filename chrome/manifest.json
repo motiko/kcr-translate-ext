@@ -1,5 +1,5 @@
 {
-  "version": "0.0.11",
+  "version": "0.0.12",
   "name": "Kindle Cloud Reader Translate",
   "short_name": "KCR Translate",
   "manifest_version": 2,
@@ -24,13 +24,33 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://read.amazon.com/"],
+      "matches": ["https://read.amazon.com/*"],
+      "js": ["index.js"],
+      "run_at": "document_end"
+    },
+    {
+      "matches": ["https://read.amazon.ca/*"],
+      "js": ["index.js"],
+      "run_at": "document_end"
+    },
+    {
+      "matches": ["https://lesen.amazon.de/*"],
       "js": ["index.js"],
       "run_at": "document_end"
     }
   ],
   "externally_connectable": {
-    "matches": ["https://read.amazon.com/"]
+    "matches": [
+      "https://read.amazon.com/",
+      "https://read.amazon.ca/",
+      "https://lesen.amazon.de/"
+    ]
   },
-  "permissions": ["https://read.amazon.com/", "storage","activeTab"]
+  "permissions": [
+    "https://read.amazon.com/",
+    "https://read.amazon.ca/",
+    "https://lesen.amazon.de/",
+    "storage",
+    "activeTab"
+  ]
 }
