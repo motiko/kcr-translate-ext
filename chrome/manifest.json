@@ -24,7 +24,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://read.amazon.com/*"],
+      "matches": ["https://lesen.amazon.de/*"],
       "js": ["index.js"],
       "run_at": "document_end"
     },
@@ -34,22 +34,71 @@
       "run_at": "document_end"
     },
     {
-      "matches": ["https://lesen.amazon.de/*"],
+      "matches": ["https://read.amazon.com/*"],
+      "js": ["index.js"],
+      "run_at": "document_end"
+    },
+    {
+      "matches": ["https://read.amazon.co.jp/*"],
+      "js": ["index.js"],
+      "run_at": "document_end"
+    },
+    {
+      "matches": ["https://read.amazon.in/*"],
+      "js": ["index.js"],
+      "run_at": "document_end"
+    },
+    {
+      "matches": ["https://read.amazon.com.au/*"],
+      "js": ["index.js"],
+      "run_at": "document_end"
+    },
+    {
+      "matches": ["https://ler.amazon.com.br/*"],
+      "js": ["index.js"],
+      "run_at": "document_end"
+    },
+    {
+      "matches": ["https://lire.amazon.fr/*"],
+      "js": ["index.js"],
+      "run_at": "document_end"
+    },
+    {
+      "matches": ["https://leggi.amazon.it/*"],
+      "js": ["index.js"],
+      "run_at": "document_end"
+    },
+    {
+      "matches": ["https://read.amazon.co.uk/*"],
       "js": ["index.js"],
       "run_at": "document_end"
     }
   ],
   "externally_connectable": {
     "matches": [
-      "https://read.amazon.com/",
+      "https://leggi.amazon.it",
+      "https://ler.amazon.com.br/",
+      "https://lesen.amazon.de/",
+      "https://lire.amazon.fr",
       "https://read.amazon.ca/",
-      "https://lesen.amazon.de/"
+      "https://read.amazon.co.jp/",
+      "https://read.amazon.co.uk/",
+      "https://read.amazon.com.au/",
+      "https://read.amazon.com/",
+      "https://read.amazon.in/"
     ]
   },
   "permissions": [
-    "https://read.amazon.com/",
-    "https://read.amazon.ca/",
+    "https://leggi.amazon.it",
+    "https://ler.amazon.com.br/",
     "https://lesen.amazon.de/",
+    "https://lire.amazon.fr",
+    "https://read.amazon.ca/",
+    "https://read.amazon.co.jp/",
+    "https://read.amazon.co.uk/",
+    "https://read.amazon.com.au/",
+    "https://read.amazon.com/",
+    "https://read.amazon.in/",
     "storage",
     "activeTab"
   ]
