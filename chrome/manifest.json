@@ -76,7 +76,7 @@
   ],
   "externally_connectable": {
     "matches": [
-      "https://leggi.amazon.it",
+      "https://leggi.amazon.it/",
       "https://ler.amazon.com.br/",
       "https://lesen.amazon.de/",
       "https://lire.amazon.fr",
@@ -89,7 +89,7 @@
     ]
   },
   "permissions": [
-    "https://leggi.amazon.it",
+    "https://leggi.amazon.it/",
     "https://ler.amazon.com.br/",
     "https://lesen.amazon.de/",
     "https://lire.amazon.fr",
