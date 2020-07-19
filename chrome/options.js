@@ -64,7 +64,7 @@ const google_languages = [
   { language_name: "Urdu", language_code: "ur" },
   { language_name: "Vietnamese", language_code: "vi" },
   { language_name: "Welsh", language_code: "cy" },
-  { language_name: "Yiddish", language_code: "yi" }
+  { language_name: "Yiddish", language_code: "yi" },
 ];
 
 const defaultTranslateEngines = [
@@ -72,20 +72,21 @@ const defaultTranslateEngines = [
     name: "google",
     label: "Google Tranlsate",
     url: "https://translate.google.com/#auto/en/",
-    selected: true
+    autoread: false,
+    selected: true,
   },
   {
     name: "dict",
     label: "dict.cc",
     url: "http://pocket.dict.cc/?s=",
-    selected: false
+    selected: false,
   },
   {
     name: "custom",
     label: "Custom",
     url: "",
-    selected: false
-  }
+    selected: false,
+  },
 ];
 
 let curTranslateEngines = defaultTranslateEngines;
@@ -95,17 +96,20 @@ window.onload = load;
 function load(onDoneLoading) {
   chrome.storage.sync.get("translateEngines", ({ translateEngines }) => {
     curTranslateEngines = translateEngines || defaultTranslateEngines;
+    let google = translateEngines.find((e) => e.name === "google");
+    console.table(google);
     $i("translate_engine").innerHTML = "";
     curTranslateEngines.forEach(
-      engine =>
-        ($i("translate_engine").innerHTML += `<option value="${
-          engine.name
-        }" ${engine.selected && "selected"}>${engine.label}</option>`)
+      (engine) =>
+        ($i("translate_engine").innerHTML += `<option value="${engine.name}" ${
+          engine.selected && "selected"
+        }>${engine.label}</option>`)
     );
     $i("translate_engine").addEventListener("change", onChangeEngine);
     $i("save_btn").addEventListener("click", saveSettings);
     $i("src_lang").addEventListener("change", onSrcLangChange);
     $i("destination_lang").addEventListener("change", onDestinationLangChange);
+    $i("auto_read").addEventListener("change", onAutoreadChange);
     $i("dict_cc_dictionaries").addEventListener("change", onDictChange);
     $i("restore_defaults_btn").addEventListener(
       "click",
@@ -118,6 +122,11 @@ function load(onDoneLoading) {
   });
 }
 
+function onAutoreadChange(e) {
+  let google = curTranslateEngines.find((engine) => engine.name == "google");
+  google.autoread = e.target.checked;
+}
+
 function onDestinationLangChange(event) {
   const prevUrl = $i("url").value;
   if (!prevUrl.match(/(#\w+\/)\w+\//)) {
@@ -125,7 +134,7 @@ function onDestinationLangChange(event) {
     return;
   }
   const langName = event.target.value;
-  const lang = google_languages.find(l => l.language_name === langName);
+  const lang = google_languages.find((l) => l.language_name === langName);
   if (!lang) return;
   const langCode = lang.language_code;
   const newUrl = prevUrl.replace(/(#\w+\/)\w+\//, `$1${langCode}/`);
@@ -139,7 +148,7 @@ function onSrcLangChange(event) {
     return;
   }
   const langName = event.target.value;
-  const lang = google_languages.find(l => l.language_name === langName);
+  const lang = google_languages.find((l) => l.language_name === langName);
   if (!lang) return;
   const langCode = lang.language_code;
   const newUrl = prevUrl.replace(/\#\w+\//, `#${langCode}/`);
@@ -147,7 +156,7 @@ function onSrcLangChange(event) {
 }
 
 function onDictChange(event) {
-  const dictName= event.target.value;
+  const dictName = event.target.value;
   const newUrl = `http://${dictName}.pocket.dict.cc/?s=`;
   $i("url").value = newUrl;
 }
@@ -155,7 +164,7 @@ function onDictChange(event) {
 function restoreDefaultSettings() {
   chrome.storage.sync.set(
     {
-      translateEngines: defaultTranslateEngines
+      translateEngines: defaultTranslateEngines,
     },
     () => {
       showMessage("defaults_restored_message");
@@ -167,19 +176,19 @@ function restoreDefaultSettings() {
 function setUrl(event) {
   const selectedEngineName = $i("translate_engine").value;
   const engineIndex = curTranslateEngines.findIndex(
-    e => e.name === selectedEngineName
+    (e) => e.name === selectedEngineName
   );
   curTranslateEngines[engineIndex] = {
     ...curTranslateEngines[engineIndex],
-    url: event.target.value
+    url: event.target.value,
   };
 }
 
 function onChangeEngine() {
   const selectedEngineName = $i("translate_engine").value;
-  const selectedEngineUrl = curTranslateEngines.find(
-    t => t.name === selectedEngineName
-  ).url;
+  const { url: selectedEngineUrl, autoread } = curTranslateEngines.find(
+    (t) => t.name === selectedEngineName
+  );
   $i("url").value = selectedEngineUrl;
   $i("google_lang_controls").classList.add("hidden");
   $i("dictcc_lang_controls").classList.add("hidden");
@@ -188,11 +197,12 @@ function onChangeEngine() {
     const { from, to } = getLanguagesFromGoogleUrl(selectedEngineUrl);
     $i("src_lang").value = from;
     $i("destination_lang").value = to;
+    $i("auto_read").checked = autoread;
   }
   if (selectedEngineName === "dict") {
     $i("dictcc_lang_controls").classList.remove("hidden");
-    const match = selectedEngineUrl.match(/:\/\/([a-zA-z-]+)\.pocket/)
-    if(match){
+    const match = selectedEngineUrl.match(/:\/\/([a-zA-z-]+)\.pocket/);
+    if (match) {
       $i("dict_cc_dictionaries").value = match[1];
     }
   }
@@ -204,8 +214,8 @@ function getLanguagesFromGoogleUrl(url) {
     throw new Error(`Could not parse google url: ${url}`);
   }
   const [_, fromCode, toCode] = parsedUrl;
-  const fromLang = google_languages.find(l => l.language_code === fromCode);
-  const toLang = google_languages.find(l => l.language_code === toCode);
+  const fromLang = google_languages.find((l) => l.language_code === fromCode);
+  const toLang = google_languages.find((l) => l.language_code === toCode);
   if (!fromLang || !toLang) {
     throw new Error(
       `Could not find language with code ${fromCode} or ${toCode}. Check if ${url} is valid google url`
@@ -219,14 +229,15 @@ function getLanguagesFromGoogleUrl(url) {
 function saveSettings() {
   const selectedEngineName = $i("translate_engine").value;
   const selectedEngine = curTranslateEngines.find(
-    e => e.name === selectedEngineName
+    (e) => e.name === selectedEngineName
   );
-  curTranslateEngines.forEach(engine => (engine.selected = false));
+  curTranslateEngines.forEach((engine) => (engine.selected = false));
   selectedEngine["selected"] = true;
   selectedEngine["url"] = $i("url").value;
+  selectedEngine["autread"] = $i("auto_read").checked;
   chrome.storage.sync.set(
     {
-      translateEngines: curTranslateEngines
+      translateEngines: curTranslateEngines,
     },
     chrome.runtime.sendMessage({ command: "RELOAD_SCRIPT" })
   );
