@@ -234,7 +234,7 @@ function saveSettings() {
   curTranslateEngines.forEach((engine) => (engine.selected = false));
   selectedEngine["selected"] = true;
   selectedEngine["url"] = $i("url").value;
-  selectedEngine["autread"] = $i("auto_read").checked;
+  selectedEngine["autoread"] = $i("auto_read").checked;
   chrome.storage.sync.set(
     {
       translateEngines: curTranslateEngines,

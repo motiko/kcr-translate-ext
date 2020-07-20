@@ -24,6 +24,11 @@
   },
   "content_scripts": [
     {
+      "matches": ["https://translate.google.com/*"],
+      "js": ["autoplay.js"],
+      "run_at": "document_end"
+    },
+    {
       "matches": ["https://lesen.amazon.de/*"],
       "js": ["index.js"],
       "run_at": "document_end"
