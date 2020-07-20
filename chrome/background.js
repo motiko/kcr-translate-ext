@@ -34,7 +34,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
             name: "google",
             label: "Google Tranlsate",
             url: "https://translate.google.com/?hl=en#auto/en/",
-            autoread: true,
+            autoread: false,
           };
       sendResponse(settings);
     });

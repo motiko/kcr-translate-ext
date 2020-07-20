@@ -96,8 +96,6 @@ window.onload = load;
 function load(onDoneLoading) {
   chrome.storage.sync.get("translateEngines", ({ translateEngines }) => {
     curTranslateEngines = translateEngines || defaultTranslateEngines;
-    let google = translateEngines.find((e) => e.name === "google");
-    console.table(google);
     $i("translate_engine").innerHTML = "";
     curTranslateEngines.forEach(
       (engine) =>
