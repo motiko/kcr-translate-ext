@@ -21,9 +21,6 @@ chrome.runtime.sendMessage({ command: "GET_SETTINGS" }, function (response) {
 function main() {
   const srcPlay = document.querySelector("div.source-footer > div.src-tts");
   const container = document.querySelector(".input-button-container");
-  const sourceText = document.getElementById("source");
-  let autoreadInterval;
-  let lastAutoreadText;
   let autoreadEnabled = true;
   window.onhashchange = function () {
     autoRead();
