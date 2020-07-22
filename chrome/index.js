@@ -12,11 +12,11 @@ function inject(fn) {
 
 function main() {
   const getWindowWithKindleReader = () => {
-    if (typeof window.KindleReaderContextMenu !== "undefined") {
+    if (typeof window?.KindleReaderContextMenu !== "undefined") {
       return window;
     } else if (window.length) {
       for (var i = 0; i < window.length; i++) {
-        if (typeof window[i].KindleReaderContextMenu !== "undefined") {
+        if (typeof window[i]?.KindleReaderContextMenu !== "undefined") {
           return window[i];
         }
       }
