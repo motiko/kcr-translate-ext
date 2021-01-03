@@ -1,7 +1,5 @@
 chrome.runtime.sendMessage({ command: "ACTIVATE_PAGE_ACTION" });
 
-inject(main);
-
 function inject(fn) {
   var script = document.createElement("script");
   script.setAttribute("type", "application/javascript");
@@ -10,74 +8,60 @@ function inject(fn) {
   document.body.removeChild(script); // clean up
 }
 
+setTimeout(() => {
+  inject(main);
+}, 2000);
+
 function main() {
-  const getWindowWithKindleReader = () => {
-    if (typeof window?.KindleReaderContextMenu !== "undefined") {
-      return window;
-    } else if (window.length) {
-      for (var i = 0; i < window.length; i++) {
-        if (typeof window[i]?.KindleReaderContextMenu !== "undefined") {
-          return window[i];
-        }
-      }
-    }
-  };
-
-  const windowWithKindleReader = getWindowWithKindleReader();
-  if (!windowWithKindleReader) {
-    console.log("Kindle Readed Widnow not found: trying again in 1 second..");
-    setTimeout(main, 1000);
-    return;
-  }
-
-  const { document: kDoc, KindleReaderContextMenu } = windowWithKindleReader;
   let settings = {
     name: "google",
     label: "Google Tranlsate",
-    url: "https://translate.google.com/?hl=en#auto/en/"
+    url: "https://translate.google.com/?hl=en#auto/en/",
   };
   chrome.runtime.sendMessage(
     "ipalacjfeejceeogpnfaijpadginmfhk",
     { command: "GET_SETTINGS" },
-    function(response) {
-      console.log(response);
+    function (response) {
       if (response) {
         settings = response;
       }
     }
   );
-  KindleReaderContextMenu.show = function() {
-    var iframeWithText = null;
-    var selectedText = null;
+  function cleanIframes() {
+    $("#KindleReaderIFrame")
+      .contents()
+      .find("#kindleReader_content")
+      .get(0).style.zIndex = 201;
+    $("#KindleReaderIFrame")
+      .contents()
+      .find("#kindleReader_content")
+      .each(function (e) {
+        $(this)
+          .find("iframe")
+          .each(function () {
+            const document = this.contentDocument;
+            const body = this.contentDocument.body;
+            if (body.classList.contains("amzUserPref")) {
+              body.style.userSelect = "text";
+              body.parentElement.contenteditable = "true";
+              body.onselectstart = function (e) {
+                return true;
+              };
 
-    if (
-      typeof arguments[3] !== "undefined" &&
-      typeof arguments[3]["start"] !== "undefined"
-    ) {
-      var sId = arguments[3]["start"];
-      var eId = arguments[3]["end"];
-
-      $("iframe", kDoc).each(function(j, textIframe) {
-        var textIFrameDoc = $(textIframe)
-          .contents()
-          .get(0);
-        if ($("#" + sId, textIFrameDoc).get(0)) {
-          iframeWithText = textIFrameDoc;
-          return false;
-        }
+              document.body.onmouseup = function () {
+                let selectedText = document.getSelection().toString();
+                if (selectedText) {
+                  window.open(
+                    settings.url + selectedText,
+                    settings.label,
+                    "height=400,width=776,location=0,menubar=0,scrollbars=1,toolbar=0"
+                  );
+                }
+              };
+            }
+          });
       });
+  }
 
-      if (iframeWithText) {
-        selectedText = iframeWithText.createRange();
-        selectedText.setStartBefore($("#" + sId, iframeWithText).get(0));
-        selectedText.setEndAfter($("#" + eId, iframeWithText).get(0));
-        window.open(
-          settings.url + selectedText,
-          settings.label,
-          "height=400,width=776,location=0,menubar=0,scrollbars=1,toolbar=0"
-        );
-      }
-    }
-  };
-  console.log("Kindle Translator Extension is now active.");
+  setInterval(cleanIframes, 1000);
 }

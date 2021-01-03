@@ -1,5 +1,5 @@
 {
-  "version": "0.0.14",
+  "version": "0.1.0",
   "name": "Kindle Cloud Reader Translate",
   "short_name": "KCR Translate",
   "manifest_version": 2,
@@ -30,6 +30,16 @@
     },
     {
       "matches": ["https://lesen.amazon.de/*"],
+      "js": ["index.js"],
+      "run_at": "document_end"
+    },
+    {
+      "matches": ["https://leer.amazon.es/*"],
+      "js": ["index.js"],
+      "run_at": "document_end"
+    },
+    {
+      "matches": ["https://leer.amazon.com.mx/*"],
       "js": ["index.js"],
       "run_at": "document_end"
     },
