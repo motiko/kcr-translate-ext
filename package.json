@@ -1,7 +1,7 @@
 {
   "name": "kcr-translate-ext",
-  "version": "0.0.4",
-  "description": "[ACRExtensions](https://github.com/ccimpoi/ACRExtensions)   [André Klein's bookmarklet](https://learnoutlive.com/apps/kindle_hack.js)",
+  "version": "0.1.2",
+  "description": "Kindle Cloud Reader Translate",
   "main": "index.js",
   "dependencies": {
     "webextension-polyfill": "^0.4.0"

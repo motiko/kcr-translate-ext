@@ -18,16 +18,16 @@ function main() {
     label: "Google Tranlsate",
     url: "https://translate.google.com/?hl=en#auto/en/",
   };
-  chrome.runtime.sendMessage(
-    "ipalacjfeejceeogpnfaijpadginmfhk",
-    { command: "GET_SETTINGS" },
-    function (response) {
-      if (response) {
-        settings = response;
-      }
-    }
-  );
   function cleanIframes() {
+    chrome.runtime.sendMessage(
+      "ipalacjfeejceeogpnfaijpadginmfhk",
+      { command: "GET_SETTINGS" },
+      function (response) {
+        if (response) {
+          settings = response;
+        }
+      }
+    );
     $("#KindleReaderIFrame")
       .contents()
       .find("#kindleReader_content")
@@ -49,6 +49,15 @@ function main() {
               };
 
               document.body.onmouseup = function () {
+                chrome.runtime.sendMessage(
+                  "ipalacjfeejceeogpnfaijpadginmfhk",
+                  { command: "GET_SETTINGS" },
+                  function (response) {
+                    if (response) {
+                      settings = response;
+                    }
+                  }
+                );
                 let selectedText = document.getSelection().toString();
                 if (selectedText) {
                   window.open(
