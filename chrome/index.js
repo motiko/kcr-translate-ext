@@ -1,76 +1,95 @@
-chrome.runtime.sendMessage({ command: "ACTIVATE_PAGE_ACTION" });
+{
+  let iframe;
+  const extUrl = chrome.runtime.getURL("");
+  const extOrigin = extUrl.substring(0, extUrl.length - 1);
+  insertIframe();
+  listenToMessageEvents();
+  waitForKindleCenter();
 
-function inject(fn) {
-  var script = document.createElement("script");
-  script.setAttribute("type", "application/javascript");
-  script.textContent = "(" + fn + ")();";
-  document.body.appendChild(script); // run the script
-  document.body.removeChild(script); // clean up
-}
-
-setTimeout(() => {
-  inject(main);
-}, 2000);
-
-function main() {
-  let settings = {
-    name: "google",
-    label: "Google Tranlsate",
-    url: "https://translate.google.com/?hl=en#auto/en/",
-  };
-  function cleanIframes() {
-    chrome.runtime.sendMessage(
-      "ipalacjfeejceeogpnfaijpadginmfhk",
-      { command: "GET_SETTINGS" },
-      function (response) {
-        if (response) {
-          settings = response;
-        }
+  function waitForKindleCenter() {
+    const interval = setInterval(() => {
+      const interactionLayer = document
+        .getElementById("KindleReaderIFrame")
+        ?.contentWindow?.document.querySelector("#kindleReader_center");
+      if (interactionLayer) {
+        clearInterval(interval);
+        interactionLayer.addEventListener("mouseup", mouseUp, {
+          capture: true,
+        });
+        const doc = document.getElementById("KindleReaderIFrame")?.contentWindow
+          ?.document;
+        injectStyle(doc);
       }
-    );
-    $("#KindleReaderIFrame")
-      .contents()
-      .find("#kindleReader_content")
-      .get(0).style.zIndex = 201;
-    $("#KindleReaderIFrame")
-      .contents()
-      .find("#kindleReader_content")
-      .each(function (e) {
-        $(this)
-          .find("iframe")
-          .each(function () {
-            const document = this.contentDocument;
-            const body = this.contentDocument.body;
-            if (body.classList.contains("amzUserPref")) {
-              body.style.userSelect = "text";
-              body.parentElement.contenteditable = "true";
-              body.onselectstart = function (e) {
-                return true;
-              };
-
-              document.body.onmouseup = function () {
-                chrome.runtime.sendMessage(
-                  "ipalacjfeejceeogpnfaijpadginmfhk",
-                  { command: "GET_SETTINGS" },
-                  function (response) {
-                    if (response) {
-                      settings = response;
-                    }
-                  }
-                );
-                let selectedText = document.getSelection().toString();
-                if (selectedText) {
-                  window.open(
-                    settings.url + selectedText,
-                    settings.label,
-                    "height=400,width=776,location=0,menubar=0,scrollbars=1,toolbar=0"
-                  );
-                }
-              };
-            }
-          });
-      });
+    }, 2000);
   }
 
-  setInterval(cleanIframes, 1000);
+  function injectStyle(doc) {
+    const css = `.ui-dialog.ui-widget.ui-widget-content.ui-corner-all.kindle_menu .ui-dialog-content.ui-widget-content{box-shadow: none;}`;
+    const style = doc.createElement("style");
+    style.appendChild(doc.createTextNode(css));
+    doc.head.appendChild(style);
+  }
+
+  function listenToMessageEvents() {
+    chrome.storage.sync.get("translateEngines", function ({
+      translateEngines,
+    }) {
+      console.log("~~~~", translateEngines);
+      window.addEventListener("message", (e) => {
+        let settings = translateEngines
+          ? translateEngines.find((e) => e.selected)
+          : {
+              name: "google",
+              label: "Google Tranlsate",
+              url: "https://translate.google.com/?hl=en#auto/en/",
+              autoread: false,
+            };
+        if (!extUrl.match(e.orign)) return;
+        setTimeout(() => (iframe.style.display = "none"), 750);
+        if (e.data.text) {
+          console.info("Detected text:", e.data.text);
+          window.open(
+            `${settings.url}${encodeURIComponent(e.data.text)}`,
+            settings.label,
+            "height=400,width=776,location=0,menubar=0,scrollbars=1,toolbar=0"
+          );
+        }
+      });
+    });
+  }
+
+  function mouseUp(e) {
+    chrome.runtime.sendMessage({ command: "grabRegion" }, (response) => {
+      console.log(response);
+      if (response.error) {
+        console.log("no text detected");
+      } else {
+        iframe.style.display = "block";
+        iframe.contentWindow.postMessage(
+          {
+            dataUrl: response.regionDataUrl,
+            command: "parseImage",
+          },
+          extOrigin
+        );
+      }
+    });
+  }
+
+  function insertIframe() {
+    iframe = document.createElement("iframe");
+    iframe.allowtransparency = "true";
+    iframe.style = `
+      border: none;
+      width: 15vw;
+      height: 5vh;
+      position: fixed;
+      right: 1em;
+      bottom: 1em;
+      z-index: 99999;
+      display:none;
+    `;
+    iframe.src = chrome.runtime.getURL("/ocr.html");
+    document.body.appendChild(iframe);
+  }
 }

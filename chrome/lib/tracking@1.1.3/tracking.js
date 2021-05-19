@@ -2055,12 +2055,14 @@
     var minDimension = this.getMinDimension();
     var maxDimension = this.getMaxDimension();
 
+    const margin = 20
+
     for (var r = 0; r < rects.length; r++) {
       var r1 = rects[r];
       intersects = true;
       for (var s = r + 1; s < rects.length; s++) {
         var r2 = rects[s];
-        if (tracking.Math.intersectRect(r1.x, r1.y, r1.x + r1.width, r1.y + r1.height, r2.x, r2.y, r2.x + r2.width, r2.y + r2.height)) {
+        if (tracking.Math.intersectRect(r1.x, r1.y, r1.x + r1.width, r1.y + r1.height + margin, r2.x, r2.y, r2.x + r2.width, r2.y + r2.height + margin)) {
           intersects = false;
           var x1 = Math.min(r1.x, r2.x);
           var y1 = Math.min(r1.y, r2.y);
@@ -2073,7 +2075,8 @@
           break;
         }
       }
-
+      // console.log("!!",intersects)
+      // results.push(r1);
       if (intersects) {
         if (r1.width >= minDimension && r1.height >= minDimension) {
           if (r1.width <= maxDimension && r1.height <= maxDimension) {
