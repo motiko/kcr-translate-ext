@@ -22,7 +22,7 @@
         }
       },
     });
-    const lang = "eng";
+    const lang = "eng+deu";
     await worker.load();
     await worker.loadLanguage(lang);
     await worker.initialize(lang);

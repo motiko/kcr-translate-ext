@@ -1,5 +1,5 @@
 {
-  "version": "0.1.2",
+  "version": "0.2.0",
   "name": "Kindle Cloud Reader Translate",
   "short_name": "KCR Translate",
   "manifest_version": 2,
@@ -90,20 +90,7 @@
     }
   ],
   "permissions": [
-    "https://leggi.amazon.it/",
-    "https://ler.amazon.com.br/",
-    "https://lesen.amazon.de/",
-    "https://lire.amazon.fr/",
-    "https://read.amazon.ca/",
-    "https://read.amazon.co.jp/",
-    "https://read.amazon.co.uk/",
-    "https://read.amazon.com.au/",
-    "https://read.amazon.com/",
-    "https://read.amazon.in/",
-    "https://leer.amazon.es/*",
-    "https://leer.amazon.com.mx/*",
     "storage",
-    "activeTab",
     "<all_urls>"
   ]
 }
