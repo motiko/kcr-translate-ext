@@ -1,10 +1,8 @@
-
 tracking.ColorTracker.registerColor("grey", function (r, g, b) {
   return r > 200 && g > 200 && b > 200 && r < 220 && g < 220 && b < 220;
 });
 
 var colors = new tracking.ColorTracker(["grey"]);
-
 
 chrome.runtime.onMessageExternal.addListener(function (
   request,
@@ -43,8 +41,8 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
             } else {
               event.data
                 .filter((rect, i) => i == 0)
-                .forEach(function (rect) {
-                  // rect.x, rect.y, rect.height, rect.width, rect.color
+                .forEach(function (rect, i) {
+                  // console.log( i, " - ", rect.x, rect.y, rect.height, rect.width, rect.color);
                   canvas.width = rect.width;
                   canvas.height = rect.height;
                   ctx.drawImage(

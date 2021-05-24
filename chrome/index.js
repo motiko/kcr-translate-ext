@@ -16,6 +16,12 @@
         interactionLayer.addEventListener("mouseup", mouseUp, {
           capture: true,
         });
+        const searchBox = document
+          .getElementById("KindleReaderIFrame")
+          ?.contentWindow?.document.getElementById("kindleReader_input_sitb");
+        if (searchBox) {
+          searchBox.style.backgroundColor = "white";
+        }
         const doc = document.getElementById("KindleReaderIFrame")?.contentWindow
           ?.document;
         injectStyle(doc);
