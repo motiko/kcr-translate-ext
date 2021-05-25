@@ -94,6 +94,12 @@ let curTranslateEngines = defaultTranslateEngines;
 window.onload = load;
 
 function load(onDoneLoading) {
+  chrome.storage.sync.get("ocrLangs", async function ({
+    ocrLangs = "eng",
+  }) {
+    // console.log(ocrLangs);
+    $i("ocrLangs").value = ocrLangs;
+  });
   chrome.storage.sync.get("translateEngines", ({ translateEngines }) => {
     curTranslateEngines = translateEngines || defaultTranslateEngines;
     $i("translate_engine").innerHTML = "";
@@ -163,6 +169,7 @@ function restoreDefaultSettings() {
   chrome.storage.sync.set(
     {
       translateEngines: defaultTranslateEngines,
+      ocrLangs: "eng",
     },
     () => {
       showMessage("defaults_restored_message");
@@ -233,9 +240,12 @@ function saveSettings() {
   selectedEngine["selected"] = true;
   selectedEngine["url"] = $i("url").value;
   selectedEngine["autoread"] = $i("auto_read").checked;
+  const ocrLangs = $i("ocrLangs").value;
+
   chrome.storage.sync.set(
     {
       translateEngines: curTranslateEngines,
+      ocrLangs,
     },
     chrome.runtime.sendMessage({ command: "RELOAD_SCRIPT" })
   );

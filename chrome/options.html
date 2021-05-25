@@ -13,6 +13,14 @@
       <div class="container">
         <form id="shortcutsForm" name="shortcutsForm">
           <div class="row container center-content">
+            <label for="ocrLangs"
+              >Detect Languages (<a
+                target="_blank"
+                href="https://tesseract-ocr.github.io/tessdoc/Data-Files#data-files-for-version-400-november-29-2016"
+                >list of supported languages</a
+              >)</label
+            >
+            <input class="u-full-width" type="text" id="ocrLangs" />
             <select id="translate_engine"></select>
             <label for="url">Url</label>
             <input class="u-full-width" type="text" id="url" />
@@ -26,8 +34,8 @@
                 id="destination_lang"
               />
               <div>
-              <input type="checkbox" id="auto_read" />
-              <label for="auto_read">Autoread</label>
+                <input type="checkbox" id="auto_read" />
+                <label for="auto_read">Autoread</label>
               </div>
             </div>
 

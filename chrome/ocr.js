@@ -22,17 +22,20 @@
         }
       },
     });
-    const lang = "eng+deu";
-    await worker.load();
-    await worker.loadLanguage(lang);
-    await worker.initialize(lang);
-    workerReady = true;
+    chrome.storage.sync.get("ocrLangs", async function ({ ocrLangs }) {
+      const lang = ocrLangs || "eng";
+      // console.log(lang);
+      await worker.load();
+      await worker.loadLanguage(lang);
+      await worker.initialize(lang);
+      workerReady = true;
+    });
   };
 
   const doOCR = async (base64) => {
     if (!workerReady) await initWorker();
     const { data } = await worker.recognize(base64);
-    console.log(data);
+    // console.log(data);
     if (data.text?.trim?.() === "" || data.confidence < 60) {
       document.getElementById("error").style.display = "block";
       document.getElementById("progress").style.display = "none";

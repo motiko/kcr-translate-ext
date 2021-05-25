@@ -8,9 +8,8 @@
 
   function waitForKindleCenter() {
     const interval = setInterval(() => {
-      const interactionLayer = document
-        .getElementById("KindleReaderIFrame")
-        ?.contentWindow?.document.querySelector("#kindleReader_center");
+      const interactionLayer = document.getElementById("KindleReaderIFrame")
+        ?.contentWindow?.document;
       if (interactionLayer) {
         clearInterval(interval);
         interactionLayer.addEventListener("mouseup", mouseUp, {
@@ -40,7 +39,7 @@
     chrome.storage.sync.get("translateEngines", function ({
       translateEngines,
     }) {
-      console.log("~~~~", translateEngines);
+      console.log("translateengines: ", translateEngines);
       window.addEventListener("message", (e) => {
         let settings = translateEngines
           ? translateEngines.find((e) => e.selected)
@@ -65,6 +64,7 @@
   }
 
   function mouseUp(e) {
+    console.log("mouseUp");
     chrome.runtime.sendMessage({ command: "grabRegion" }, (response) => {
       console.log(response);
       if (response.error) {

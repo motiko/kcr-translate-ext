@@ -1,8 +1,14 @@
 tracking.ColorTracker.registerColor("grey", function (r, g, b) {
   return r > 200 && g > 200 && b > 200 && r < 220 && g < 220 && b < 220;
 });
+tracking.ColorTracker.registerColor("lightgrey", function (r, g, b) {
+  return r > 190 && g > 190 && b > 170 && r < 205 && g < 205 && b < 180;
+});
+tracking.ColorTracker.registerColor("idk", function (r, g, b) {
+  return r > 95 && g > 95 && b > 95 && r < 110 && g < 110 && b < 110;
+});
 
-var colors = new tracking.ColorTracker(["grey"]);
+var colors = new tracking.ColorTracker(["lightgrey", "grey", "idk"]);
 
 chrome.runtime.onMessageExternal.addListener(function (
   request,
@@ -37,7 +43,10 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         img.onload = () => {
           colors.on("track", function (event) {
             if (event.data.length === 0) {
-              sendResponse({ error: "no text detected" });
+              console.log("no area detected");
+              sendResponse({
+                error: "no area detected (check color scheme)",
+              });
             } else {
               event.data
                 .filter((rect, i) => i == 0)
