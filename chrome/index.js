@@ -51,10 +51,12 @@
             };
         if (!extUrl.match(e.orign)) return;
         setTimeout(() => (iframe.style.display = "none"), 750);
-        if (e.data.text) {
-          console.info("Detected text:", e.data.text);
+        let text = e.data.text;
+        if (text) {
+          text = text.replaceAll(/(?:\r\n|\r|\n)/g, ' ');
+          console.info("Detected text:", text);
           window.open(
-            `${settings.url}${encodeURIComponent(e.data.text)}`,
+            `${settings.url}${encodeURIComponent(text)}`,
             settings.label,
             "height=400,width=776,location=0,menubar=0,scrollbars=1,toolbar=0"
           );
