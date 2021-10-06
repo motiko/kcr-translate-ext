@@ -1,6 +1,6 @@
 {
   "name": "kcr-translate-ext",
-  "version": "0.1.2",
+  "version": "0.2.3",
   "description": "Kindle Cloud Reader Translate",
   "main": "index.js",
   "dependencies": {
