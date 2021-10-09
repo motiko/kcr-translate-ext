@@ -1,3 +1,6 @@
+const kindleIframeId = "KindleReaderIFrame";
+const kindleContentAreaId = "kindleReader_content";
+
 {
   let iframe;
   const extUrl = chrome.runtime.getURL("");
@@ -8,31 +11,15 @@
 
   function waitForKindleCenter() {
     const interval = setInterval(() => {
-      const interactionLayer = document.getElementById("KindleReaderIFrame")
-        ?.contentWindow?.document;
+      const interactionLayer = document.getElementById(kindleIframeId)
+        ?.contentWindow?.document?.getElementById(kindleContentAreaId);
       if (interactionLayer) {
         clearInterval(interval);
         interactionLayer.addEventListener("mouseup", mouseUp, {
           capture: true,
         });
-        const searchBox = document
-          .getElementById("KindleReaderIFrame")
-          ?.contentWindow?.document.getElementById("kindleReader_input_sitb");
-        if (searchBox) {
-          searchBox.style.backgroundColor = "white";
-        }
-        const doc = document.getElementById("KindleReaderIFrame")?.contentWindow
-          ?.document;
-        injectStyle(doc);
       }
     }, 2000);
-  }
-
-  function injectStyle(doc) {
-    const css = `.ui-dialog.ui-widget.ui-widget-content.ui-corner-all.kindle_menu .ui-dialog-content.ui-widget-content{box-shadow: none;}`;
-    const style = doc.createElement("style");
-    style.appendChild(doc.createTextNode(css));
-    doc.head.appendChild(style);
   }
 
   function listenToMessageEvents() {
@@ -49,7 +36,7 @@
               url: "https://translate.google.com/?hl=en#auto/en/",
               autoread: false,
             };
-        if (!extUrl.match(e.orign)) return;
+        if (!extUrl.match(e.origin)) return;
         setTimeout(() => (iframe.style.display = "none"), 750);
         let text = e.data.text;
         if (text) {
@@ -65,23 +52,42 @@
     });
   }
 
+  const strPxToFloat = val => Number(val.replace("px", ""));
+
   function mouseUp(e) {
     console.log("mouseUp");
-    chrome.runtime.sendMessage({ command: "grabRegion" }, (response) => {
-      console.log(response);
-      if (response.error) {
-        console.log("no text detected");
-      } else {
-        iframe.style.display = "block";
-        iframe.contentWindow.postMessage(
-          {
-            dataUrl: response.regionDataUrl,
-            command: "parseImage",
-          },
-          extOrigin
-        );
-      }
+    const interactionLayer = document.getElementById(kindleIframeId)
+      ?.contentWindow?.document?.getElementById(kindleContentAreaId);
+
+    // find all selected areas
+    const selectedAreas = interactionLayer.querySelectorAll('.kg-client-selection');
+    if (!selectedAreas.length) {
+      return;
+    }
+
+    const pageImage = interactionLayer.querySelector('.kg-full-page-img');
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    canvas.width = pageImage.clientWidth;
+    canvas.height = pageImage.clientHeight;
+
+    const region = new Path2D();
+    selectedAreas.forEach(selection => {
+      const { left, width, top, height } = selection.style;
+      region.rect(...[left, top, width, height].map(px => strPxToFloat(px)));
     });
+    ctx.clip(region);
+    ctx.drawImage(pageImage, 0, 0, pageImage.clientWidth, pageImage.clientHeight);
+    const dataUrl = canvas.toDataURL();
+
+    iframe.style.display = "block";
+    iframe.contentWindow.postMessage(
+      {
+        dataUrl: dataUrl,
+        command: "parseImage",
+      },
+      extOrigin
+    );
   }
 
   function insertIframe() {
