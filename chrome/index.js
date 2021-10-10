@@ -18,6 +18,9 @@ const kindleContentAreaId = "kindleReader_content";
         interactionLayer.addEventListener("mouseup", mouseUp, {
           capture: true,
         });
+        interactionLayer.addEventListener("dblclick", dbClick, {
+          capture: true,
+        });
       }
     }, 2000);
   }
@@ -56,14 +59,30 @@ const kindleContentAreaId = "kindleReader_content";
 
   function mouseUp(e) {
     console.log("mouseUp");
-    const interactionLayer = document.getElementById(kindleIframeId)
-      ?.contentWindow?.document?.getElementById(kindleContentAreaId);
 
     // find all selected areas
+    const interactionLayer = document.getElementById(kindleIframeId)
+      ?.contentWindow?.document?.getElementById(kindleContentAreaId);
     const selectedAreas = interactionLayer.querySelectorAll('.kg-client-selection');
+    // selectedAreas will exists in dnd selection and will be empty in double click selection
+    translateSelected(selectedAreas);
+  }
+
+  function dbClick(e) {
+    // check if target is a text in kindle
+    if (!e.target.classList.contains("kg-client-dictionary")) {
+      return;
+    }
+    translateSelected([e.target]);
+  }
+
+  function translateSelected(selectedAreas = []) {
     if (!selectedAreas.length) {
       return;
     }
+
+    const interactionLayer = document.getElementById(kindleIframeId)
+      ?.contentWindow?.document?.getElementById(kindleContentAreaId);
 
     const pageImage = interactionLayer.querySelector('.kg-full-page-img');
     const canvas = document.createElement("canvas");
