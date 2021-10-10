@@ -109,7 +109,13 @@ function load(onDoneLoading) {
   });
   chrome.storage.sync.get("translateEngines", ({ translateEngines }) => {
     curTranslateEngines = translateEngines || defaultTranslateEngines;
-    // todo: check if `translateEngines` have all default engines
+    const curTranslateEnginesNames = curTranslateEngines.map(e => e.name);
+    defaultTranslateEngines.forEach((engine) => {
+      // check if `curTranslateEngines` have all default engines
+      if (!curTranslateEnginesNames.includes(engine.name)) {
+        curTranslateEngines.push(engine);
+      }
+    })
     $i("translate_engine").innerHTML = "";
     curTranslateEngines.forEach(
       (engine) =>
@@ -204,6 +210,8 @@ function onChangeEngine() {
   );
   $i("url").value = selectedEngineUrl;
   $i("url").classList.remove("hidden");
+  const urlLabel = document.querySelector("label[for=url]");
+  urlLabel.classList.remove("hidden");
   $i("google_lang_controls").classList.add("hidden");
   $i("dictcc_lang_controls").classList.add("hidden");
   if (selectedEngineName === "google") {
@@ -215,6 +223,7 @@ function onChangeEngine() {
   }
   if (selectedEngineName === "google-ext") {
     $i("url").classList.add("hidden");
+    urlLabel.classList.add("hidden");
   }
   if (selectedEngineName === "dict") {
     $i("dictcc_lang_controls").classList.remove("hidden");
