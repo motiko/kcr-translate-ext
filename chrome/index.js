@@ -3,6 +3,8 @@ const kindleContentAreaId = "kindleReader_content";
 
 {
   let iframe;
+  let selectedText;
+  let isFullPageTranslation = false;
   const extUrl = chrome.runtime.getURL("");
   const extOrigin = extUrl.substring(0, extUrl.length - 1);
   insertIframe();
@@ -21,8 +23,38 @@ const kindleContentAreaId = "kindleReader_content";
         interactionLayer.addEventListener("dblclick", dbClick, {
           capture: true,
         });
+        interactionLayer.addEventListener("mousedown", mouseDown, {
+          capture: true,
+        });
+        interactionLayer.appendChild(selectedText);
+        injectStyle();
+
+        const observer = new MutationObserver(function (event) {
+          isFullPageTranslation = !!document.querySelector("html.translated-ltr, head.translated-rtl, ya-tr-span, *[_msttexthash]");
+          translatePage();
+        });
+
+        observer.observe(document.documentElement, {
+          attributes: true,
+          attributeFilter: ['class'],
+          childList: false,
+          characterData: false
+        });
       }
     }, 2000);
+  }
+
+  function injectStyle() {
+    const doc = document.getElementById(kindleIframeId)?.contentWindow?.document;
+    const css = `
+      #kcr-selection::selection, #kcr-selection ::selection { background: transparent; }
+      #kcr-selection::-moz-selection, #kcr-selection ::-moz-selection { background: transparent; }
+      #kcr-selection::-webkit-selection, #kcr-selection ::-webkit-selection { background: transparent; }
+      #kcr-selection.gte-fp { color: #000000 !important; }
+    `;
+    const style = doc.createElement("style");
+    style.appendChild(doc.createTextNode(css));
+    doc.head.appendChild(style);
   }
 
   function listenToMessageEvents() {
@@ -35,7 +67,7 @@ const kindleContentAreaId = "kindleReader_content";
           ? translateEngines.find((e) => e.selected)
           : {
               name: "google",
-              label: "Google Tranlsate",
+              label: "Google Translate",
               url: "https://translate.google.com/?hl=en#auto/en/",
               autoread: false,
             };
@@ -45,11 +77,36 @@ const kindleContentAreaId = "kindleReader_content";
         if (text) {
           text = text.replaceAll(/(?:\r\n|\r|\n)/g, ' ');
           console.info("Detected text:", text);
-          window.open(
-            `${settings.url}${encodeURIComponent(text)}`,
-            settings.label,
-            "height=400,width=776,location=0,menubar=0,scrollbars=1,toolbar=0"
-          );
+
+          if (settings.name === 'google-ext') {
+            const kindleIframe = document.getElementById(kindleIframeId)
+              ?.contentWindow?.document;
+
+            selectedText.style.display = "block";
+            selectedText.textContent = text;
+
+            const range = new Range();
+            range.setStart(selectedText, 0);
+            range.setEnd(selectedText, 1);
+            kindleIframe.getSelection().removeAllRanges();
+            // trigger google translate extension
+            kindleIframe.getSelection().addRange(range);
+            const selectedTextBoundaries = selectedText.getBoundingClientRect();
+
+            selectedText.dispatchEvent(new MouseEvent('mouseup', {
+              view: window,
+              bubbles: true,
+              cancelable: true,
+              clientX: selectedTextBoundaries.x,
+              clientY: selectedTextBoundaries.y,
+            }));
+          } else {
+            window.open(
+              `${settings.url}${encodeURIComponent(text)}`,
+              settings.label,
+              "height=400,width=776,location=0,menubar=0,scrollbars=1,toolbar=0"
+            );
+          }
         }
       });
     });
@@ -57,9 +114,18 @@ const kindleContentAreaId = "kindleReader_content";
 
   const strPxToFloat = val => Number(val.replace("px", ""));
 
+  function mouseDown(e) {
+    if (!isFullPageTranslation) {
+      selectedText.style.display = "none";
+      selectedText.textContent = "";
+    }
+  }
+
   function mouseUp(e) {
     console.log("mouseUp");
-
+    if (e.target.id === selectedText.id || isFullPageTranslation) {
+      return;
+    }
     // find all selected areas
     const interactionLayer = document.getElementById(kindleIframeId)
       ?.contentWindow?.document?.getElementById(kindleContentAreaId);
@@ -104,9 +170,13 @@ const kindleContentAreaId = "kindleReader_content";
     })
 
     const region = new Path2D();
-    selectedAreas.forEach(selection => {
+    selectedAreas.forEach((selection, index) => {
       const { left, width, top, height } = selection.style;
       region.rect(...[left, top, width, height].map(px => strPxToFloat(px)));
+      if (index === 0) {
+        selectedText.style.left = left;
+        selectedText.style.top = top;
+      }
     });
     ctx.clip(region);
     ctx.drawImage(pageImage, 0, 0, pageImage.clientWidth, pageImage.clientHeight);
@@ -121,6 +191,21 @@ const kindleContentAreaId = "kindleReader_content";
       },
       extOrigin
     );
+  }
+
+  function translatePage() {
+    const interactionLayer = document.getElementById(kindleIframeId)
+      ?.contentWindow?.document?.getElementById(kindleContentAreaId);
+    const pageImage = interactionLayer.querySelector('.kg-full-page-img');
+    if (isFullPageTranslation) {
+      // google translate extension translates whole page
+      selectedText.classList.add("gte-fp");
+      translateSelected('.kg-client-dictionary');
+      pageImage.style.display = "none";
+    } else {
+      selectedText.classList.remove("gte-fp");
+      pageImage.style.display = "block";
+    }
   }
 
   function insertIframe() {
@@ -138,5 +223,18 @@ const kindleContentAreaId = "kindleReader_content";
     `;
     iframe.src = chrome.runtime.getURL("/ocr.html");
     document.body.appendChild(iframe);
+
+    selectedText = document.createElement('span');
+    selectedText.id = 'kcr-selection';
+    selectedText.style = `
+      position: absolute;
+      z-index: 9999;
+      user-select: all;
+      pointer-events: all;
+      display: none;
+      color: transparent;
+      cursor: default;
+      font-size: 18px;
+    `
   }
 }
