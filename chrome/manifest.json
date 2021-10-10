@@ -51,7 +51,8 @@
     {
       "matches": ["https://read.amazon.com/*"],
       "js": ["index.js"],
-      "run_at": "document_end"
+      "run_at": "document_end",
+      "all_frames": true
     },
     {
       "matches": ["https://read.amazon.co.jp/*"],

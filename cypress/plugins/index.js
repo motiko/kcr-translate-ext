@@ -1,3 +1,4 @@
+/// <reference types="cypress" />
 // ***********************************************************
 // This example plugins/index.js can be used to load plugins
 //
@@ -7,25 +8,23 @@
 // You can read more here:
 // https://on.cypress.io/plugins-guide
 // ***********************************************************
+const path = require("path");
 
 // This function is called when a project is opened or re-opened (e.g. due to
 // the project's config changing)
 
+/**
+ * @type {Cypress.PluginConfig}
+ */
+// eslint-disable-next-line no-unused-vars
 module.exports = (on, config) => {
   // `on` is used to hook into various events Cypress emits
   // `config` is the resolved Cypress config
 
-on('before:browser:launch', (browser = {}, args) => {
-    // browser will look something like this
-    // {
-    //   name: 'chrome',
-    //   displayName: 'Chrome',
-    //   version: '63.0.3239.108',
-    //   path: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-    //   majorVersion: '63'
-    // }
+  on('before:browser:launch', (browser, launchOptions) => {
+    launchOptions.extensions.push(path.resolve('./chrome'))
 
-  args.push('--load-extension=./chrome')
-})
+    return launchOptions
+  })
 
 }

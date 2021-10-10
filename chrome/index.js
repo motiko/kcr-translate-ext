@@ -93,6 +93,7 @@ const kindleContentAreaId = "kindleReader_content";
   function insertIframe() {
     iframe = document.createElement("iframe");
     iframe.allowtransparency = "true";
+    iframe.dataset.cy = 'kcr-translate-ext-iframe';
     iframe.style = `
       border: none;
       width: 15vw;
