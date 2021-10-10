@@ -71,6 +71,19 @@ const kindleContentAreaId = "kindleReader_content";
     canvas.width = pageImage.clientWidth;
     canvas.height = pageImage.clientHeight;
 
+    const columnElements = interactionLayer.querySelectorAll('.kg-client-interaction-layer > div');
+    const columns = Array.from(columnElements).map(el => {
+      const { left, width } = el.style;
+      const leftNum = strPxToFloat(left);
+      const widthNum = strPxToFloat(width);
+      return {
+        left: leftNum,
+        top: 0,
+        width: widthNum - leftNum,
+        height: pageImage.clientHeight,
+      }
+    })
+
     const region = new Path2D();
     selectedAreas.forEach(selection => {
       const { left, width, top, height } = selection.style;
@@ -83,7 +96,8 @@ const kindleContentAreaId = "kindleReader_content";
     iframe.style.display = "block";
     iframe.contentWindow.postMessage(
       {
-        dataUrl: dataUrl,
+        dataUrl,
+        columns,
         command: "parseImage",
       },
       extOrigin
