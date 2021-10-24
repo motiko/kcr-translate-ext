@@ -8,7 +8,7 @@
       corePath: chrome.runtime.getURL("lib/tesseract/tesseract-core.wasm.js"),
       workerBlobURL: false,
       logger: (m) => {
-        console.info("tesseract progress:", m);
+        // console.info("tesseract progress:", m);
         if (m.status === "recognizing text") {
           const progress = m.progress === 0 ? 30 : Math.round(m.progress * 100);
           const progressElem = document.querySelector("progress");
@@ -33,11 +33,21 @@
     });
   };
 
-  const doOCR = async (base64) => {
+  const doOCR = async (base64, columns) => {
     if (!workerReady) await initWorker();
-    const { data } = await worker.recognize(base64);
-    // console.log(data);
-    if (data.text?.trim?.() === "" || data.confidence < 60) {
+    const values = [];
+    for (let i = 0; i < columns.length; i++) {
+      const { data } = await worker.recognize(base64, { rectangle: columns[i] });
+      values.push(data);
+    }
+    const result = values.map(data => {
+      if (data.text?.trim?.() === "" || data.confidence < 60) {
+        return "";
+      }
+      return data.text;
+    }).join(" ");
+
+    if (result.trim?.() === "") {
       document.getElementById("error").style.display = "block";
       document.getElementById("progress").style.display = "none";
       setTimeout(() => {
@@ -46,7 +56,7 @@
       }, 950);
       parent.postMessage({ error: "No text was detected" }, origin);
     } else {
-      parent.postMessage({ text: data.text }, origin);
+      parent.postMessage({ text: result }, origin);
     }
   };
 
@@ -55,7 +65,7 @@
     window.addEventListener("message", (e) => {
       origin = e.origin;
       document.getElementById("img").src = e.data.dataUrl;
-      doOCR(e.data.dataUrl);
+      doOCR(e.data.dataUrl, e.data.columns);
     });
   };
 

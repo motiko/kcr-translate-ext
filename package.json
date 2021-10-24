@@ -3,11 +3,10 @@
   "version": "0.2.3",
   "description": "Kindle Cloud Reader Translate",
   "main": "index.js",
-  "dependencies": {
-    "tracking": "^1.1.3",
-    "webextension-polyfill": "^0.4.0"
+  "dependencies": {},
+  "devDependencies": {
+    "@types/chrome": "^0.0.159"
   },
-  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
