@@ -1,6 +1,6 @@
 const $i = document.getElementById.bind(document);
 const google_languages = [
-  { language_name: "Auto detect", language_code: "auto" },
+  { language_name: "Automatic Detection", language_code: "auto" },
   { language_name: "Afrikaans", language_code: "af" },
   { language_name: "Albanian", language_code: "sq" },
   { language_name: "Arabic", language_code: "ar" },
@@ -70,10 +70,17 @@ const google_languages = [
 const defaultTranslateEngines = [
   {
     name: "google",
-    label: "Google Tranlsate",
+    label: "Google Translate",
     url: "https://translate.google.com/#auto/en/",
     autoread: false,
     selected: true,
+  },
+  {
+    name: "google-ext",
+    label: "Google Translate Extension",
+    url: "",
+    autoread: false,
+    selected: false,
   },
   {
     name: "dict",
@@ -102,6 +109,13 @@ function load(onDoneLoading) {
   });
   chrome.storage.sync.get("translateEngines", ({ translateEngines }) => {
     curTranslateEngines = translateEngines || defaultTranslateEngines;
+    const curTranslateEnginesNames = curTranslateEngines.map(e => e.name);
+    defaultTranslateEngines.forEach((engine) => {
+      // check if `curTranslateEngines` have all default engines
+      if (!curTranslateEnginesNames.includes(engine.name)) {
+        curTranslateEngines.push(engine);
+      }
+    })
     $i("translate_engine").innerHTML = "";
     curTranslateEngines.forEach(
       (engine) =>
@@ -195,6 +209,9 @@ function onChangeEngine() {
     (t) => t.name === selectedEngineName
   );
   $i("url").value = selectedEngineUrl;
+  $i("url").classList.remove("hidden");
+  const urlLabel = document.querySelector("label[for=url]");
+  urlLabel.classList.remove("hidden");
   $i("google_lang_controls").classList.add("hidden");
   $i("dictcc_lang_controls").classList.add("hidden");
   if (selectedEngineName === "google") {
@@ -203,6 +220,10 @@ function onChangeEngine() {
     $i("src_lang").value = from;
     $i("destination_lang").value = to;
     $i("auto_read").checked = autoread;
+  }
+  if (selectedEngineName === "google-ext") {
+    $i("url").classList.add("hidden");
+    urlLabel.classList.add("hidden");
   }
   if (selectedEngineName === "dict") {
     $i("dictcc_lang_controls").classList.remove("hidden");

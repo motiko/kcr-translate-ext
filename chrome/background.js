@@ -10,7 +10,7 @@ chrome.runtime.onMessageExternal.addListener(function (
         ? translateEngines.find((e) => e.selected)
         : {
             name: "google",
-            label: "Google Tranlsate",
+            label: "Google Translate",
             url: "https://translate.google.com/?hl=en#auto/en/",
           };
       sendResponse(settings);
@@ -33,7 +33,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
         ? translateEngines.find((e) => e.selected)
         : {
             name: "google",
-            label: "Google Tranlsate",
+            label: "Google Translate",
             url: "https://translate.google.com/?hl=en#auto/en/",
             autoread: false,
           };
