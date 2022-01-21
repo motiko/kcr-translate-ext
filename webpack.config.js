@@ -60,6 +60,15 @@ module.exports = {
           from: path.join(inputDir, 'img'),
           to: path.join(outputDir, "img"),
         },
+        // add tesseract-related bundles
+        {
+          from: path.join(__dirname, 'node_modules', 'tesseract.js', 'dist', 'worker.min.js'),
+          to: path.join(outputDir, "lib", 'tesseract'),
+        },
+        {
+          from: path.join(__dirname, 'node_modules', 'tesseract.js-core', 'tesseract-core.wasm.js'),
+          to: path.join(outputDir, "lib", 'tesseract'),
+        },
       ],
     }),
     new HtmlWebpackPlugin({

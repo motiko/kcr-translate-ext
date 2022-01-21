@@ -3,7 +3,10 @@
   "version": "0.3.0",
   "description": "Translate directly from Kindle Cloud Reader",
   "main": "index.js",
-  "dependencies": {},
+  "dependencies": {
+    "skeleton-css": "2.0.4",
+    "tesseract.js": "^2.1.5"
+  },
   "devDependencies": {
     "@babel/core": "^7.16.10",
     "@types/chrome": "^0.0.159",
