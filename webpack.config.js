@@ -9,6 +9,7 @@ const inputDir = path.join(__dirname, 'chrome');
 const outputDir = path.join(__dirname, 'dist');
 
 module.exports = {
+  mode: "production",
   entry: {
     autoplay: path.join(inputDir, 'autoplay.js'),
     index: path.join(inputDir, 'index.js'),
