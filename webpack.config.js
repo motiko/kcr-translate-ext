@@ -47,7 +47,7 @@ module.exports = {
     new CleanWebpackPlugin(),
     new WebpackExtensionManifestPlugin({
       config: {
-        base: path.join(inputDir, 'manifest.json'),
+        base: path.join(inputDir, 'baseManifestV2.js'),
       },
       pkgJsonProps: [
         'version',
