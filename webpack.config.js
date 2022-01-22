@@ -4,6 +4,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const WebpackExtensionManifestPlugin = require('webpack-extension-manifest-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 
 const inputDir = path.join(__dirname, 'chrome');
 const outputDir = path.join(__dirname, 'dist');
@@ -45,6 +46,7 @@ module.exports = {
     extensions: ['.js'],
   },
   plugins: [
+    new webpack.ProgressPlugin(),
     new CleanWebpackPlugin(),
     new WebpackExtensionManifestPlugin({
       config: {
@@ -83,4 +85,11 @@ module.exports = {
       chunks: ["options"]
     }),
   ],
+  optimization: {
+    minimizer: [
+      new TerserPlugin({
+        exclude: /\.asm.js$/,
+      }),
+    ],
+  },
 };
