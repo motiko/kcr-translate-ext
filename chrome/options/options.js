@@ -1,6 +1,6 @@
 import 'skeleton-css/css/normalize.css'
 import 'skeleton-css/css/skeleton.css'
-import './css/options.css'
+import './options.css'
 
 const $i = document.getElementById.bind(document);
 const google_languages = [
