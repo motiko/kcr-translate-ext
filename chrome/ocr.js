@@ -1,4 +1,6 @@
 /* globals Tesseract */
+import Tesseract from 'tesseract.js'
+
 {
   let worker, workerReady;
   let origin;

@@ -1,3 +1,4 @@
 pack.zip
 node_modules/
-
+dist/
+.idea

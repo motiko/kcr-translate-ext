@@ -1,14 +1,31 @@
 {
   "name": "kcr-translate-ext",
-  "version": "0.2.3",
-  "description": "Kindle Cloud Reader Translate",
+  "version": "0.3.0",
+  "description": "Translate directly from Kindle Cloud Reader",
   "main": "index.js",
-  "dependencies": {},
+  "dependencies": {
+    "skeleton-css": "2.0.4",
+    "tesseract.js": "^2.1.5"
+  },
   "devDependencies": {
-    "@types/chrome": "^0.0.159"
+    "@babel/core": "^7.16.10",
+    "@types/chrome": "^0.0.159",
+    "babel-loader": "^8.2.3",
+    "clean-webpack-plugin": "^4.0.0",
+    "copy-webpack-plugin": "^10.2.1",
+    "css-loader": "^6.5.1",
+    "html-webpack-plugin": "^5.5.0",
+    "style-loader": "^3.3.1",
+    "webpack": "^5.67.0",
+    "webpack-cli": "^4.9.1",
+    "webpack-ext-reloader": "^1.1.8",
+    "webpack-extension-manifest-plugin": "^0.8.0"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "webpack --config webpack.dev.js",
+    "build": "webpack --config webpack.config.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "zip": "zip pack.zip dist -r"
   },
   "repository": {
     "type": "git",
