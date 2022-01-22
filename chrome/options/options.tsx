@@ -1,5 +1,5 @@
 import React, { ChangeEventHandler, useEffect, useState } from 'react'
-import { Engines, ITranslateEngine, supportedOcrLangs } from '../const'
+import { Engines, ITranslateEngine, tesseractLangs} from '../const'
 import { DictCCEngineOptions } from './dict/options'
 import { GoogleTranslateEngineOptions, GoogleTranslateExtEngineOptions } from './google/options'
 import { Storage } from '../services/storage'
@@ -98,17 +98,12 @@ const Options = () => {
         <form id="shortcutsForm" name="shortcutsForm">
           <div className="row container center-content">
             <label htmlFor="ocrLangs">
-              Detect Languages (
-              <a
-                target="_blank"
-                href="https://tesseract-ocr.github.io/tessdoc/Data-Files#data-files-for-version-400-november-29-2016"
-              >list of supported languages</a>)
-            </label>
+              Translate From </label>
             <select className="u-full-width" id="ocrLangs" value={ocrLangs} onChange={onOcrLanguageSelect}>
               {
-                supportedOcrLangs.map(lang => (
-                  <option key={lang} value={lang}>
-                    {lang}
+                Object.entries(tesseractLangs).map(([langKey,langName]) => (
+                  <option key={langKey} value={langKey}>
+                    {langName}
                   </option>
                 ))
               }
