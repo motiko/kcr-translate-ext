@@ -11,10 +11,10 @@ const outputDir = path.join(__dirname, 'dist');
 module.exports = {
   mode: "production",
   entry: {
-    autoplay: path.join(inputDir, 'autoplay.js'),
-    index: path.join(inputDir, 'index.js'),
-    ocr: path.join(inputDir, 'ocr.js'),
-    options: path.join(inputDir, 'options.js'),
+    autoplay: path.join(inputDir, 'content', 'autoplay.js'),
+    index: path.join(inputDir, 'content', 'index.js'),
+    ocr: path.join(inputDir, 'content', 'ocr.js'),
+    options: path.join(inputDir, 'options', 'options.js'),
     background: path.join(inputDir, 'background.js'),
   },
   output: {
@@ -48,7 +48,7 @@ module.exports = {
     new CleanWebpackPlugin(),
     new WebpackExtensionManifestPlugin({
       config: {
-        base: path.join(inputDir, 'baseManifestV2.js'),
+        base: path.join(inputDir, 'manifest', 'baseManifestV2.js'),
       },
       pkgJsonProps: [
         'version',
@@ -73,19 +73,14 @@ module.exports = {
       ],
     }),
     new HtmlWebpackPlugin({
-      template: path.join(inputDir, "ocr.html"),
+      template: path.join(inputDir, 'content', "ocr.html"),
       filename: "ocr.html",
       chunks: ["ocr"]
     }),
     new HtmlWebpackPlugin({
-      template: path.join(inputDir, "options.html"),
+      template: path.join(inputDir, "options", "options.html"),
       filename: "options.html",
       chunks: ["options"]
-    }),
-    new HtmlWebpackPlugin({
-      template: path.join(inputDir, "background.html"),
-      filename: "background.html",
-      chunks: ["background"]
     }),
   ],
 };

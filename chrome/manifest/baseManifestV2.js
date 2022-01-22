@@ -24,6 +24,18 @@ const autoplayMatches = [
 module.exports = {
   ...commonManifest,
   manifest_version: 2,
+  background: {
+    scripts: ["background.js"],
+    persistent: false
+  },
+  options_ui: {
+    page: "options.html"
+  },
+  page_action: {
+    default_icon: "img/book_16.png",
+    default_popup: "options.html"
+  },
+  web_accessible_resources: ["ocr.html"],
   content_scripts: [
     {
       matches: autoplayMatches.map(makeUrl),
