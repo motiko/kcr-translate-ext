@@ -1,7 +1,7 @@
 import React, { ChangeEventHandler, useEffect, useState } from 'react'
 import { Engines, ITranslateEngine, supportedOcrLangs } from '../const'
 import { DictCCEngineOptions } from './dict/options'
-import { GoogleTranslateEngineOptions } from './google/options'
+import { GoogleTranslateEngineOptions, GoogleTranslateExtEngineOptions } from './google/options'
 import { Storage } from '../services/storage'
 import { showMessage } from './utils'
 
@@ -126,6 +126,7 @@ const Options = () => {
             )}
             <GoogleTranslateEngineOptions selectedEngine={selectedEngine} onEngineUpdate={onEngineUpdate} />
             <DictCCEngineOptions selectedEngine={selectedEngine} onEngineUpdate={onEngineUpdate} />
+            <GoogleTranslateExtEngineOptions selectedEngine={selectedEngine} onEngineUpdate={onEngineUpdate} />
             <div className="row container center-content">
               <a id="restore_defaults_btn" className="button-primary button" onClick={onRestoreBtnClick}>
                 Restore Defaults

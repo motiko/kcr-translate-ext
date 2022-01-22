@@ -77,3 +77,17 @@ export const GoogleTranslateEngineOptions = ({ selectedEngine, onEngineUpdate }:
   )
 }
 
+export const GoogleTranslateExtEngineOptions = ({ selectedEngine }: IEngineOptionsProps) => {
+  const { name } = selectedEngine;
+  if (name !== Engines.GOOGLE_TRANSLATE_EXT) {
+    return null;
+  }
+  return (
+    <label>
+      Please note that in order to use this engine you need to install <a
+        target="_blank"
+        href="https://chrome.google.com/webstore/detail/google-translate/aapbdbdomjkkjkaonfhkkikfgjllcleb?hl=en"
+      >Google Translate</a> extension
+    </label>
+  );
+}
