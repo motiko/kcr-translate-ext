@@ -67,7 +67,7 @@ module.exports = {
           to: path.join(outputDir, "lib", 'tesseract'),
         },
         {
-          from: path.join(__dirname, 'node_modules', 'tesseract.js-core', 'tesseract-core.wasm.js'),
+          from: path.join(__dirname, 'node_modules', 'tesseract.js-core', 'tesseract-core.asm.js'),
           to: path.join(outputDir, "lib", 'tesseract'),
         },
       ],

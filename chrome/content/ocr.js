@@ -7,7 +7,7 @@ import Tesseract from 'tesseract.js'
   const initWorker = async () => {
     worker = Tesseract.createWorker({
       workerPath: chrome.runtime.getURL("lib/tesseract/worker.min.js"),
-      corePath: chrome.runtime.getURL("lib/tesseract/tesseract-core.wasm.js"),
+      corePath: chrome.runtime.getURL("lib/tesseract/tesseract-core.asm.js"),
       workerBlobURL: false,
       logger: (m) => {
         // console.info("tesseract progress:", m);
