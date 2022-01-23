@@ -42,7 +42,6 @@ const Options = () => {
   const [isLoaded, setLoaded] = useState<boolean>(false);
   const [engines, setEngines] = useState<ITranslateEngine[]>([]);
   const [ocrLangs, setOcrLangs] = useState<string>("eng");
-  const [translationEnabled, setTranslationEnabled] = useState<boolean>();
 
   const onChangeEngine = (engineName: Engines) => {
     onEngineUpdate({
@@ -160,12 +159,6 @@ const Options = () => {
               onEngineUpdate={onEngineUpdate}
             />
             <div className="row container center-content">
-              <a
-                className="button-primary button"
-                onClick={onToggleTranslation}
-              >
-                Restore Defaults
-              </a>
               <a className="button-primary button" onClick={onRestoreBtnClick}>
                 Restore Defaults
               </a>
