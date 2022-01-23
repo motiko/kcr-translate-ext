@@ -5,7 +5,7 @@ import {
   GoogleTranslateEngineOptions,
   GoogleTranslateExtEngineOptions,
 } from "./google/options";
-import { Storage } from "../services/storage";
+import { Storage } from "../services/settings";
 import { showMessage } from "./utils";
 
 interface IEngineSelectProps {
@@ -38,16 +38,19 @@ const EnginesSelect = ({
 };
 
 const Options = () => {
-  const storage = new Storage();
-  const [loadedFromStorage, setLoaded] = useState<boolean>(false);
+  const settingsServise = new Settings();
+  const [isLoaded, setLoaded] = useState<boolean>(false);
   const [engines, setEngines] = useState<ITranslateEngine[]>([]);
   const [ocrLangs, setOcrLangs] = useState<string>("eng");
+  const [translationEnabled, setTranslationEnabled] = useState<boolean>();
+
   const onChangeEngine = (engineName: Engines) => {
     onEngineUpdate({
       ...engines.find((t) => t.name === engineName)!,
       selected: true,
     });
   };
+
   const onEngineUpdate = (newEngineData: ITranslateEngine) => {
     const { selected } = newEngineData;
     const newEngines = engines.map((e) => {
@@ -64,37 +67,40 @@ const Options = () => {
     });
     setEngines(newEngines);
   };
+
   const onOcrLanguageSelect: ChangeEventHandler<HTMLSelectElement> = (
     event
   ) => {
     setOcrLangs(event.target.value);
   };
   const onSaveBtnClick = () => {
-    storage.updateValues(engines, ocrLangs).then(() => {
+    settingsServise.updateValues(engines, ocrLangs).then(() => {
       showMessage("saved_message");
     });
   };
+
   const onRestoreBtnClick = () => {
-    storage.restoreDefaultSettings().then(({ translateEngines, ocrLangs }) => {
-      showMessage("defaults_restored_message");
-      setEngines(translateEngines);
-      setOcrLangs(ocrLangs);
-    });
+    settingsServise
+      .restoreDefaultSettings()
+      .then(({ translateEngines, ocrLangs }) => {
+        showMessage("defaults_restored_message");
+        setEngines(translateEngines);
+        setOcrLangs(ocrLangs);
+      });
   };
+
   useEffect(() => {
-    // load data from storage
+    // load data from settings servise
     const loadFromStorage = async () => {
-      const ocrLangsStored = await storage.getOcrLangs();
+      const ocrLangsStored = await settingsServise.getOcrLangs();
       setOcrLangs(ocrLangsStored);
-      const engines = await storage.getTranslateEngines();
+      const engines = await settingsServise.getTranslateEngines();
       setEngines(engines);
       setLoaded(true);
     };
     void loadFromStorage();
   }, []);
-  if (!loadedFromStorage) {
-    return <div className="section" />;
-  }
+
   const selectedEngine = engines.find((e) => e.selected)!;
   const onChangeUrl: ChangeEventHandler<HTMLInputElement> = (event) => {
     onEngineUpdate({
@@ -102,6 +108,10 @@ const Options = () => {
       url: event.target.value,
     });
   };
+
+  if (!isLoaded) {
+    return <div className="section" />;
+  }
   return (
     <div className="section">
       <div className="container">
@@ -151,17 +161,15 @@ const Options = () => {
             />
             <div className="row container center-content">
               <a
-                id="restore_defaults_btn"
                 className="button-primary button"
-                onClick={onRestoreBtnClick}
+                onClick={onToggleTranslation}
               >
                 Restore Defaults
               </a>
-              <a
-                id="save_btn"
-                className="button-primary button"
-                onClick={onSaveBtnClick}
-              >
+              <a className="button-primary button" onClick={onRestoreBtnClick}>
+                Restore Defaults
+              </a>
+              <a className="button-primary button" onClick={onSaveBtnClick}>
                 Save
               </a>
             </div>
