@@ -1,6 +1,6 @@
 export interface IGoogleLanguage {
-  language_name: string,
-  language_code: string,
+  language_name: string;
+  language_code: string;
 }
 
 export const google_languages: IGoogleLanguage[] = [
@@ -71,7 +71,10 @@ export const google_languages: IGoogleLanguage[] = [
   { language_name: "Yiddish", language_code: "yi" },
 ];
 
-export function getLanguagesFromGoogleUrl(url: string): {from: string, to: string} {
+export function getLanguagesFromGoogleUrl(url: string): {
+  from: string;
+  to: string;
+} {
   const parsedUrl = url.match(/#(\w+)\/(\w+)\//);
   if (!parsedUrl) {
     throw new Error(`Could not parse google url: ${url}`);
