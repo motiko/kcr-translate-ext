@@ -15,7 +15,7 @@ module.exports = (on, config) => {
   // `on` is used to hook into various events Cypress emits
   // `config` is the resolved Cypress config
 
-on('before:browser:launch', (browser = {}, args) => {
+  on("before:browser:launch", (browser = {}, args) => {
     // browser will look something like this
     // {
     //   name: 'chrome',
@@ -25,7 +25,6 @@ on('before:browser:launch', (browser = {}, args) => {
     //   majorVersion: '63'
     // }
 
-  args.push('--load-extension=./chrome')
-})
-
-}
+    args.push("--load-extension=./chrome");
+  });
+};

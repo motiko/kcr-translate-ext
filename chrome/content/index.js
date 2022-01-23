@@ -13,8 +13,8 @@ chrome.runtime.sendMessage({ command: "ACTIVATE_PAGE_ACTION" });
 
 function waitForKindleCenter() {
   const interval = setInterval(() => {
-    const kindleIframe = document.getElementById(kindleIframeId)?.contentWindow
-      ?.document;
+    const kindleIframe =
+      document.getElementById(kindleIframeId)?.contentWindow?.document;
     const interactionLayer = kindleIframe?.getElementById(kindleContentAreaId);
     if (interactionLayer) {
       clearInterval(interval);
@@ -94,8 +94,8 @@ function listenToMessageEvents() {
         console.info("Detected text:", text);
 
         if (settings.name === "google-ext") {
-          const kindleIframe = document.getElementById(kindleIframeId)
-            ?.contentWindow?.document;
+          const kindleIframe =
+            document.getElementById(kindleIframeId)?.contentWindow?.document;
 
           detectedTextContainer.style.display = "block";
           detectedTextContainer.textContent = text;
@@ -107,7 +107,8 @@ function listenToMessageEvents() {
             range.setEnd(detectedTextContainer, 1);
             kindleIframe.getSelection().removeAllRanges();
             kindleIframe.getSelection().addRange(range);
-            const selectedTextBoundaries = detectedTextContainer.getBoundingClientRect();
+            const selectedTextBoundaries =
+              detectedTextContainer.getBoundingClientRect();
 
             detectedTextContainer.dispatchEvent(
               new MouseEvent("mouseup", {
