@@ -5,7 +5,7 @@ import {
   GoogleTranslateEngineOptions,
   GoogleTranslateExtEngineOptions,
 } from "./google/options";
-import { Settings} from "../services/settings";
+import { Settings } from "../services/settings";
 import { showMessage } from "./utils";
 
 interface IEngineSelectProps {
@@ -89,9 +89,7 @@ const Options = () => {
       });
   };
 
-  const onToggleTranslation = () => {
-    setTranslationEnabled(!translationEnabled);
-  };
+
 
   useEffect(() => {
     // load data from settings servise
@@ -164,14 +162,6 @@ const Options = () => {
               onEngineUpdate={onEngineUpdate}
             />
             <div className="row container center-content">
-              {selectedEngine.name !== Engines.GOOGLE_TRANSLATE_EXT && (
-                <a
-                  className="button-primary button"
-                  onClick={onToggleTranslation}
-                >
-                  {translationEnabled ? "Disable" : "Enable"}
-                </a>
-              )}
               <a className="button-primary button" onClick={onRestoreBtnClick}>
                 Restore Defaults
               </a>
