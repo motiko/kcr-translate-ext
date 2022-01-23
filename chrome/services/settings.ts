@@ -20,7 +20,6 @@ export class Settings {
   setTranslationEnabled(enabled: boolean): Promise<void> {
     return new Promise<void>((resolve) => {
       chrome.storage.sync.set({ translationEnabled: enabled }, () => {
-        chrome.runtime.sendMessage({ command: "RELOAD_SCRIPT" });
         resolve();
       });
     });
