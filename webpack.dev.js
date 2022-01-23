@@ -4,7 +4,7 @@ const ExtReloader = require("webpack-ext-reloader");
 module.exports = {
   ...productionConfig,
   mode: "development",
-  devtool: 'cheap-module-source-map',
+  devtool: "cheap-module-source-map",
   watch: true,
   plugins: [
     ...productionConfig.plugins,
@@ -18,5 +18,4 @@ module.exports = {
       },
     }),
   ],
-}
-
+};

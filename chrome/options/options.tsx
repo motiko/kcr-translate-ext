@@ -166,7 +166,7 @@ const Options = () => {
             <div className="row container center-content">
               <a className="button-primary button" onClick={onRestoreBtnClick}>
                 Restore Defaults
-              </a>
+              </a>{" "}
               <a className="button-primary button" onClick={onSaveBtnClick}>
                 Save
               </a>

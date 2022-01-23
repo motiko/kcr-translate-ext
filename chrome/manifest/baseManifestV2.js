@@ -1,6 +1,6 @@
-const commonManifest = require('./manifest.json')
+const commonManifest = require("./manifest.json");
 
-const makeUrl = str => `https://${str}/*`;
+const makeUrl = (str) => `https://${str}/*`;
 
 const kindleCloudReaderMatches = [
   "lesen.amazon.de",
@@ -15,25 +15,23 @@ const kindleCloudReaderMatches = [
   "lire.amazon.fr",
   "leggi.amazon.it",
   "read.amazon.co.uk",
-]
+];
 
-const autoplayMatches = [
-  "translate.google.com",
-]
+const autoplayMatches = ["translate.google.com"];
 
 module.exports = {
   ...commonManifest,
   manifest_version: 2,
   background: {
     scripts: ["background.js"],
-    persistent: false
+    persistent: false,
   },
   options_ui: {
-    page: "options.html"
+    page: "options.html",
   },
   page_action: {
     default_icon: "img/book_16.png",
-    default_popup: "options.html"
+    default_popup: "options.html",
   },
   web_accessible_resources: ["ocr.html"],
   content_scripts: [

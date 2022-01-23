@@ -20,9 +20,9 @@
 }
 
 .hidden {
-  display: none
+  display: none;
 }
 
-.message.error{
+.message.error {
   background: indianred;
 }

@@ -1,5 +1,5 @@
 /* globals Tesseract */
-import Tesseract from 'tesseract.js'
+import Tesseract from "tesseract.js";
 
 {
   let worker, workerReady;
@@ -39,15 +39,19 @@ import Tesseract from 'tesseract.js'
     if (!workerReady) await initWorker();
     const values = [];
     for (let i = 0; i < columns.length; i++) {
-      const { data } = await worker.recognize(base64, { rectangle: columns[i] });
+      const { data } = await worker.recognize(base64, {
+        rectangle: columns[i],
+      });
       values.push(data);
     }
-    const result = values.map(data => {
-      if (data.text?.trim?.() === "" || data.confidence < 60) {
-        return "";
-      }
-      return data.text;
-    }).join(" ");
+    const result = values
+      .map((data) => {
+        if (data.text?.trim?.() === "" || data.confidence < 60) {
+          return "";
+        }
+        return data.text;
+      })
+      .join(" ");
 
     if (result.trim?.() === "") {
       document.getElementById("error").style.display = "block";
