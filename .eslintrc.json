@@ -1,0 +1,8 @@
+{
+  "root": true,
+  "extends": ["eslint:recommended"],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": { "project": ["./tsconfig.json"] },
+  "plugins": ["@typescript-eslint", "prettier"],
+  "ignorePatterns": ["dist/**", "cypress/**", "webpack.*.js"]
+}

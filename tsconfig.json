@@ -13,7 +13,7 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "noEmit": false,
-    "jsx": "react-jsx"
+    "jsx": "react"
   },
   "include": ["chrome"],
   "exclude": ["dist", "node_modules"]
