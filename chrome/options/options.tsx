@@ -5,7 +5,7 @@ import {
   GoogleTranslateEngineOptions,
   GoogleTranslateExtEngineOptions,
 } from "./google/options";
-import { Settings} from "../services/settings";
+import { Settings } from "../services/settings";
 import { showMessage } from "./utils";
 
 interface IEngineSelectProps {
@@ -161,7 +161,7 @@ const Options = () => {
             <div className="row container center-content">
               <a className="button-primary button" onClick={onRestoreBtnClick}>
                 Restore Defaults
-              </a>
+              </a>{" "}
               <a className="button-primary button" onClick={onSaveBtnClick}>
                 Save
               </a>
