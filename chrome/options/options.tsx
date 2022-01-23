@@ -46,6 +46,11 @@ const Options = () => {
 
   const onTranslationToggle = () => {
     setTranslationEnabled(!isTranslationEnabled);
+    settingsServise
+      .setTranslationEnabled(!isTranslationEnabled)
+      .catch((error) => {
+        setTranslationEnabled(!isTranslationEnabled);
+      });
   };
 
   const onChangeEngine = (engineName: Engines) => {
@@ -100,6 +105,8 @@ const Options = () => {
       setOcrLangs(ocrLangsStored);
       const engines = await settingsServise.getTranslateEngines();
       setEngines(engines);
+      const translationEnabled = await settingsServise.getTranslationEnabled();
+      setTranslationEnabled(translationEnabled);
       setLoaded(true);
     };
     void loadFromStorage();
