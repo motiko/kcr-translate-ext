@@ -21,7 +21,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.command === "ACTIVATE_PAGE_ACTION") {
     chrome.pageAction.show(sender.tab.id);
   }
-  if (request.command == "RELOAD_SCRIPT") {
+  if (request.command === "SETTINGS_UPDATED") {
     chrome.tabs.executeScript({
       file: "index.js",
     });

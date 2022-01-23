@@ -4,8 +4,10 @@
   "description": "Translate directly from Kindle Cloud Reader",
   "main": "index.js",
   "dependencies": {
+    "prop-types": "^15.8.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "react-frame-component": "^5.2.1",
     "skeleton-css": "2.0.4",
     "tesseract.js": "^2.1.5"
   },
@@ -17,6 +19,7 @@
     "@babel/preset-typescript": "^7.16.7",
     "@types/chrome": "^0.0.159",
     "@types/react": "^17.0.38",
+    "@types/react-dom": "^17.0.11",
     "@typescript-eslint/eslint-plugin": "^5.10.0",
     "@typescript-eslint/parser": "^5.10.0",
     "babel-loader": "^8.2.3",
@@ -26,6 +29,8 @@
     "eslint": "^8.7.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-react": "^7.28.0",
+    "eslint-plugin-react-hooks": "^4.3.0",
     "html-webpack-plugin": "^5.5.0",
     "prettier": "^2.5.1",
     "style-loader": "^3.3.1",

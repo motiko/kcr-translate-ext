@@ -14,7 +14,7 @@ module.exports = {
       entries: {
         contentScript: ["autoplay", "index"],
         background: "background",
-        extensionPage: ["ocr", "options"],
+        extensionPage: ["options"],
       },
     }),
   ],

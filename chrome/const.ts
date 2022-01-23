@@ -1,4 +1,3 @@
-// @ts-ignore
 export const tesseractLangs = {
   afr: "Afrikaans",
   amh: "Amharic",
@@ -103,6 +102,12 @@ export const tesseractLangs = {
   vie: "Vietnamese",
   yid: "Yiddish",
 };
+
+export enum Commands {
+  SETTINGS_UPDATED = "SETTINGS_UPDATED",
+  EXTENSION_MOUNTED = "ACTIVATE_PAGE_ACTION",
+  EXTENSION_UNMOUNTED = "EXTENSION_UNMOUNTED",
+}
 
 export enum Engines {
   GOOGLE_TRANSLATE = "google",

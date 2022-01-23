@@ -13,8 +13,7 @@ module.exports = {
   mode: "production",
   entry: {
     autoplay: path.join(inputDir, "content", "autoplay.js"),
-    index: path.join(inputDir, "content", "index.js"),
-    ocr: path.join(inputDir, "content", "ocr.js"),
+    index: path.join(inputDir, "content", "kindle"),
     options: path.join(inputDir, "options"),
     background: path.join(inputDir, "background.js"),
   },
@@ -31,7 +30,7 @@ module.exports = {
           options: {
             presets: [
               "@babel/preset-env",
-              "@babel/preset-react",
+              ["@babel/preset-react", {"runtime": "automatic"}], // https://stackoverflow.com/questions/32070303/uncaught-referenceerror-react-is-not-defined
               "@babel/preset-typescript",
             ],
             plugins: [["@babel/plugin-transform-runtime"]],
@@ -91,11 +90,6 @@ module.exports = {
           to: path.join(outputDir, "lib", "tesseract"),
         },
       ],
-    }),
-    new HtmlWebpackPlugin({
-      template: path.join(inputDir, "content", "ocr.html"),
-      filename: "ocr.html",
-      chunks: ["ocr"],
     }),
     new HtmlWebpackPlugin({
       template: path.join(inputDir, "options", "options.html"),

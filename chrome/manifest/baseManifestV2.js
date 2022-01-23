@@ -33,7 +33,6 @@ module.exports = {
     default_icon: "img/book_16.png",
     default_popup: "options.html",
   },
-  web_accessible_resources: ["ocr.html"],
   content_scripts: [
     {
       matches: autoplayMatches.map(makeUrl),
