@@ -42,7 +42,11 @@ const Options = () => {
   const [isLoaded, setLoaded] = useState<boolean>(false);
   const [engines, setEngines] = useState<ITranslateEngine[]>([]);
   const [ocrLangs, setOcrLangs] = useState<string>("eng");
-  const [translationEnabled, setTranslationEnabled] = useState<boolean>();
+  const [isTranslationEnabled, setTranslationEnabled] = useState<boolean>();
+
+  const onTranslationToggle = () => {
+    setTranslationEnabled(!isTranslationEnabled);
+  };
 
   const onChangeEngine = (engineName: Engines) => {
     onEngineUpdate({
@@ -88,8 +92,6 @@ const Options = () => {
         setOcrLangs(ocrLangs);
       });
   };
-
-
 
   useEffect(() => {
     // load data from settings servise
@@ -168,6 +170,16 @@ const Options = () => {
               <a className="button-primary button" onClick={onSaveBtnClick}>
                 Save
               </a>
+              {selectedEngine.name !== Engines.GOOGLE_TRANSLATE_EXT && (
+                <a
+                  className="button-primary button"
+                  onClick={onTranslationToggle}
+                >
+                  {isTranslationEnabled
+                    ? "Disable Translation"
+                    : "Enable Translation"}
+                </a>
+              )}
             </div>
             <div className="row container center-content">
               <div className="opaque message" id="saved_message">
