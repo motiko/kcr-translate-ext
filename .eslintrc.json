@@ -1,8 +1,16 @@
 {
   "root": true,
-  "extends": ["eslint:recommended"],
+  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended", "plugin:prettier/recommended"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": { "project": ["./tsconfig.json"] },
-  "plugins": ["@typescript-eslint", "prettier"],
-  "ignorePatterns": ["dist/**", "cypress/**", "webpack.*.js"]
+  "plugins": ["@typescript-eslint"],
+  "ignorePatterns": ["dist/**", "cypress/**", "webpack.*.js"],
+  "env": {
+    "browser": true,
+    "node": true,
+    "webextensions": true
+  },
+  "rules": {
+    "prettier/prettier": "warn"
+  }
 }
