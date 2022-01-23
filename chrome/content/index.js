@@ -156,15 +156,24 @@ function mouseUp(e) {
   if (e.target.id === detectedTextContainer.id || isFullPageTranslationMode) {
     return;
   }
-  // find all selected areas
-  const interactionLayer = document
-    .getElementById(kindleIframeId)
-    ?.contentWindow?.document?.getElementById(kindleContentAreaId);
-  const selectedAreas = interactionLayer.querySelectorAll(
-    ".kg-client-selection"
+  const translationEnabled = chrome.storage.sync.get(
+    "translationEnabled",
+    ({ translationEnabled }) => {
+      if (translationEnabled) {
+        // find all selected areas
+        const interactionLayer = document
+          .getElementById(kindleIframeId)
+          ?.contentWindow?.document?.getElementById(kindleContentAreaId);
+        const selectedAreas = interactionLayer.querySelectorAll(
+          ".kg-client-selection"
+        );
+        // selectedAreas will exists in dnd selection and will be empty in double click selection
+        translateSelected(selectedAreas);
+      } else {
+        console.info("Translation is disabled");
+      }
+    }
   );
-  // selectedAreas will exists in dnd selection and will be empty in double click selection
-  translateSelected(selectedAreas);
 }
 
 function dbClick(e) {

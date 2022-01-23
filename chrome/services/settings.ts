@@ -3,16 +3,38 @@ import { defaultTranslateEngines, ITranslateEngine } from "../const";
 interface IStorageObjects {
   readonly ocrLangs: string;
   readonly translateEngines: ITranslateEngine[];
+  readonly translationEnabled: boolean;
 }
 
 export class Settings {
   private ocrLangsKey = "ocrLangs";
   private translateEnginesKey = "translateEngines";
+  private translationEnabledKey = "translationEnabled";
 
   private defaults: IStorageObjects = {
     translateEngines: defaultTranslateEngines as ITranslateEngine[],
     ocrLangs: "eng",
+    translationEnabled: true,
   };
+
+  setTranslationEnabled(enabled: boolean): Promise<void> {
+    return new Promise<void>((resolve) => {
+      chrome.storage.sync.set({ translationEnabled: enabled }, () => {
+        resolve();
+      });
+    });
+  }
+
+  getTranslationEnabled(): Promise<boolean> {
+    return new Promise<boolean>((resolve) => {
+      chrome.storage.sync.get(
+        this.translationEnabledKey,
+        ({ translationEnabled = this.defaults.translationEnabled }) => {
+          resolve(translationEnabled);
+        }
+      );
+    });
+  }
 
   getOcrLangs(): Promise<string> {
     return new Promise<string>((resolve) => {
