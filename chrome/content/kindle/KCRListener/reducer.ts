@@ -98,6 +98,12 @@ export function reducer(
         selectedAreas: action.payload,
       };
     case Actions.FINISH_TRANSLATION:
+      // since this can be called ina async way
+      // we need to check if the translation still required
+      if (state.translationStatus !== TranslationStatus.STARTED) {
+        // do nothing
+        return state;
+      }
       return {
         ...state,
         translationStatus: TranslationStatus.FINISHED,

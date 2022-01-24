@@ -14,6 +14,10 @@ const createListenerComponent = async (
   console.log("translateengines: ", settings.translateEngines);
   const kindleElements = await waitForKindleCenter();
   const ListenerWrapper: React.FC = ({ children }) => {
+    if (!settings.translationEnabled) {
+      console.info("Translation is disabled");
+      return null;
+    }
     return (
       <KindleCloudReaderListener
         settings={settings}

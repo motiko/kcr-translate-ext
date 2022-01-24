@@ -1,12 +1,14 @@
 import MessageSender = chrome.runtime.MessageSender;
-import { Commands, IOcrInputData } from "./const";
-import { doOCR, initWorker } from "./background/ocr";
+import { Commands, IOcrInputData } from "../const";
+import { doOCR, initWorker } from "./ocr";
 import { Worker } from "tesseract.js";
-import { Settings } from "./services/settings";
-import { Message, Messaging } from "./services/messaging";
+import { Settings } from "../services/settings";
+import { Message, Messaging } from "../services/messaging";
 
 let worker: Worker | null = null;
 let workerReady = false;
+// id of the tab that is currently using worker
+let lockId: number | null = null;
 
 const settingsService = new Settings();
 const messagingService = new Messaging();
@@ -17,27 +19,44 @@ async function loadWorkerLanguage(ocrLangs: string) {
 }
 
 const onOcrProgressUpdate = (progress: number) => {
-  void messagingService.sendMessageToActiveTab({
+  if (!lockId) {
+    return;
+  }
+  void messagingService.sendMessageToTab(lockId, {
     command: Commands.SET_PROGRESS,
     payload: progress,
   });
 };
 
-const requestListener = async (
+const setUpWorker = async () => {
+  if (!worker) {
+    worker = await initWorker(onOcrProgressUpdate);
+    const ocrLangs = await settingsService.getOcrLangs();
+    await loadWorkerLanguage(ocrLangs);
+    workerReady = true;
+  }
+};
+
+const requestListener = (
   request: Message,
   sender: MessageSender,
   sendResponse: (response: any) => void
 ) => {
+  console.log(request.command);
   if (request.command === Commands.EXTENSION_MOUNTED) {
-    chrome.pageAction.show(sender.tab!.id!);
-    // init worker
-    if (!worker) {
-      worker = await initWorker(onOcrProgressUpdate);
-      const ocrLangs = await settingsService.getOcrLangs();
-      await loadWorkerLanguage(ocrLangs);
-      workerReady = true;
+    const tabId = sender.tab?.id;
+    if (tabId) {
+      chrome.pageAction.show(tabId);
     }
-    sendResponse(true);
+    // init worker
+    setUpWorker().then(() => {
+      sendResponse(true);
+    });
+  }
+  if (request.command === Commands.EXTENSION_UNMOUNTED) {
+    if (lockId && sender.tab?.id === lockId) {
+      lockId = null;
+    }
   }
   if (request.command === Commands.SETTINGS_UPDATED) {
     chrome.tabs.executeScript({
@@ -53,15 +72,32 @@ const requestListener = async (
     //     }
     //   });
     // });
-    sendResponse(true);
+    setTimeout(function () {
+      sendResponse(true);
+    }, 1);
   }
   if (request.command === Commands.START_RECOGNITION) {
-    if (workerReady) {
+    const tabId = sender.tab?.id;
+    // todo: handle tabId === lockId case,
+    // we should handle latest request
+    if (workerReady && tabId && !lockId) {
+      lockId = tabId;
       const data = request.payload as IOcrInputData;
-      const result = await doOCR(worker!, data.dataUrl, data.columns);
-      sendResponse(result);
+      doOCR(worker!, data.dataUrl, data.columns)
+        .then((result) => {
+          sendResponse(result);
+        })
+        .finally(() => {
+          lockId = null;
+        });
+    } else if (lockId) {
+      setTimeout(function () {
+        sendResponse({ error: "worker is busy", text: "" });
+      }, 1);
     } else {
-      sendResponse({ error: "worker is not initialized", text: "" });
+      setTimeout(function () {
+        sendResponse({ error: "worker is not initialized", text: "" });
+      }, 1);
     }
   }
   if (request.command === "GET_SETTINGS") {

@@ -1,8 +1,8 @@
 import { detectedTextContainerId, getAllSelectedTexts, isKindleText } from "../utils";
 import React, { useCallback, useEffect, useReducer } from "react";
 import { Commands, Engines } from "../../../const";
-import { injectStylesToKindlePage, observePageEvents } from "./utils";
-import { ProviderContext } from "../ProviderContext";
+import { observePageEvents } from "./utils";
+import { ContentContext } from "../ContentContext";
 import { IKindleCloudReaderListenerProps } from "./types";
 import { actionCreators, createDefaultState, reducer } from "./reducer";
 
@@ -88,19 +88,17 @@ export const KindleCloudReaderListener: React.FC<IKindleCloudReaderListenerProps
     kindleContentArea.addEventListener("mouseup", onMouseUp, listenersOptions);
     kindleContentArea.addEventListener("dblclick", onDoubleClick, listenersOptions);
     kindleIframeDocument.addEventListener("mousedown", onMouseDown, listenersOptions);
-    const removeStyles = injectStylesToKindlePage(kindleElements);
-    chrome.runtime.sendMessage({ command: Commands.EXTENSION_MOUNTED });
+    void messagingService.sendMessageToExtension({ command: Commands.EXTENSION_MOUNTED });
     return () => {
       console.log("removeListeners");
       kindleContentArea.removeEventListener("mouseup", onMouseUp, listenersOptions);
       kindleContentArea.removeEventListener("dblclick", onDoubleClick, listenersOptions);
       kindleIframeDocument.removeEventListener("mousedown", onMouseDown, listenersOptions);
-      removeStyles();
-      chrome.runtime.sendMessage({ command: Commands.EXTENSION_UNMOUNTED });
+      void chrome.runtime.sendMessage({ command: Commands.EXTENSION_UNMOUNTED });
     };
-  }, [kindleElements, onDoubleClick, onMouseDown, onMouseUp]);
+  }, [kindleElements, messagingService, onDoubleClick, onMouseDown, onMouseUp]);
   return (
-    <ProviderContext.Provider
+    <ContentContext.Provider
       value={{
         settings,
         messagingService,
@@ -110,6 +108,6 @@ export const KindleCloudReaderListener: React.FC<IKindleCloudReaderListenerProps
       }}
     >
       {children}
-    </ProviderContext.Provider>
+    </ContentContext.Provider>
   );
 };

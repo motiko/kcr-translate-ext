@@ -10,6 +10,8 @@ export const initWorker = async (onProgressUpdate: (progress: number) => void): 
       // console.info("tesseract progress:", m);
       if (m.status === "recognizing text") {
         const progress = m.progress === 0 ? 30 : Math.round(m.progress * 100);
+        // todo: we have a problem with the progress value for multiple columns,
+        // e.g. for the two columns `progress` will run from 0 to 1 twice
         onProgressUpdate(progress);
       }
     },

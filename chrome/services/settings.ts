@@ -33,6 +33,7 @@ export class Settings {
   setTranslationEnabled(enabled: boolean): Promise<void> {
     return new Promise<void>((resolve) => {
       chrome.storage.sync.set({ translationEnabled: enabled }, () => {
+        chrome.runtime.sendMessage({ command: Commands.SETTINGS_UPDATED });
         resolve();
       });
     });
@@ -101,6 +102,7 @@ export class Settings {
   async restoreDefaultSettings(): Promise<IStorageObjects> {
     return new Promise<IStorageObjects>((resolve) => {
       chrome.storage.sync.set(Settings.defaults, () => {
+        chrome.runtime.sendMessage({ command: Commands.SETTINGS_UPDATED });
         resolve(Settings.defaults);
       });
     });

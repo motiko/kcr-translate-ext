@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useMemo, useRef } from "react";
 import ReactDOM from "react-dom";
-import { ProviderContext } from "./ProviderContext";
+import { ContentContext } from "./ContentContext";
 import { Engines } from "../../const";
-import { detectedTextContainerId, TranslationStatus } from "./utils";
+import { detectedTextContainerId, IKindleCenterElements, TranslationStatus } from "./utils";
 
 const getContainerPosition = (selectedAreas: HTMLSpanElement[]) => {
   if (!selectedAreas.length) {
@@ -18,50 +18,94 @@ const getContainerPosition = (selectedAreas: HTMLSpanElement[]) => {
   };
 };
 
+const triggerPageTranslationGTE = () => {
+  const iframe = document.createElement("div");
+  iframe.setAttribute(
+    "style",
+    `
+      display:none;
+    `
+  );
+  document.body.appendChild(iframe);
+  iframe.remove();
+};
+
+/**
+ * triggers google translate extension popover
+ */
+const triggerSelectionTranslationGTE = (
+  kindleIframeDocument: Document,
+  detectedTextContainer: HTMLSpanElement
+) => {
+  const range = new Range();
+  range.setStart(detectedTextContainer, 0);
+  range.setEnd(detectedTextContainer, 1);
+  kindleIframeDocument.getSelection()?.removeAllRanges();
+  kindleIframeDocument.getSelection()?.addRange(range);
+  const selectedTextBoundaries = detectedTextContainer.getBoundingClientRect();
+
+  detectedTextContainer.dispatchEvent(
+    new MouseEvent("mouseup", {
+      view: window,
+      bubbles: true,
+      cancelable: true,
+      clientX: selectedTextBoundaries.x,
+      clientY: selectedTextBoundaries.y,
+    })
+  );
+};
+
+function injectStylesToKindlePage({ kindleIframeDocument }: IKindleCenterElements): VoidFunction {
+  const doc = kindleIframeDocument;
+  const css = `
+      #kcr-selection::selection, #kcr-selection ::selection { background: transparent; }
+      #kcr-selection::-moz-selection, #kcr-selection ::-moz-selection { background: transparent; }
+      #kcr-selection::-webkit-selection, #kcr-selection ::-webkit-selection { background: transparent; }
+      .kg-full-page-img.translated { display: none !important; }
+    `;
+  const style = doc.createElement("style");
+  style.appendChild(doc.createTextNode(css));
+  doc.head.appendChild(style);
+  return () => {
+    doc.head.removeChild(style);
+    style.remove();
+  };
+}
+
 export const DetectedTextContainer: React.FC = () => {
   const {
-    kindleElements: { kindleContentArea, kindleIframeDocument },
+    kindleElements,
     settings: { selectedEngine },
     detectedText,
     selectedAreas,
     isFullPageTranslationMode,
     translationStatus,
-  } = useContext(ProviderContext);
-  const container = useRef(document.createElement("div"));
+  } = useContext(ContentContext);
+  const containerRef = useRef(document.createElement("div"));
   const spanRef = useRef<HTMLSpanElement>(null);
   const containerPosition = useMemo(() => getContainerPosition(selectedAreas), [selectedAreas]);
   useEffect(() => {
-    const detectedTextContainer = container.current;
-    kindleContentArea.appendChild(detectedTextContainer);
+    const container = containerRef.current;
+    const { kindleContentArea } = kindleElements;
+    container.setAttribute("style", "color: transparent;");
+    kindleContentArea.appendChild(container);
+    const removeStyles = injectStylesToKindlePage(kindleElements);
     return () => {
-      kindleContentArea.removeChild(detectedTextContainer);
-      detectedTextContainer.remove();
+      kindleContentArea.removeChild(container);
+      removeStyles();
     };
-  }, [kindleContentArea]);
+  }, [kindleElements]);
   useEffect(() => {
     const detectedTextContainer = spanRef.current;
     if (!detectedText || !detectedTextContainer) {
       return;
     }
-    if (selectedEngine.name === Engines.GOOGLE_TRANSLATE_EXT && !isFullPageTranslationMode) {
-      // trigger google translate extension popover
-      console.log("trigger google translate ext");
-      const range = new Range();
-      range.setStart(detectedTextContainer, 0);
-      range.setEnd(detectedTextContainer, 1);
-      kindleIframeDocument.getSelection()?.removeAllRanges();
-      kindleIframeDocument.getSelection()?.addRange(range);
-      const selectedTextBoundaries = detectedTextContainer.getBoundingClientRect();
-
-      detectedTextContainer.dispatchEvent(
-        new MouseEvent("mouseup", {
-          view: window,
-          bubbles: true,
-          cancelable: true,
-          clientX: selectedTextBoundaries.x,
-          clientY: selectedTextBoundaries.y,
-        })
-      );
+    if (selectedEngine.name === Engines.GOOGLE_TRANSLATE_EXT) {
+      if (isFullPageTranslationMode) {
+        triggerPageTranslationGTE();
+      } else {
+        triggerSelectionTranslationGTE(kindleElements.kindleIframeDocument, detectedTextContainer);
+      }
     }
     if (selectedEngine.name === Engines.GOOGLE_TRANSLATE) {
       window.open(
@@ -76,16 +120,19 @@ export const DetectedTextContainer: React.FC = () => {
     isFullPageTranslationMode && translationStatus === TranslationStatus.FINISHED;
   const containerVisible = selectedEngine.name === Engines.GOOGLE_TRANSLATE_EXT;
   useEffect(() => {
-    const pageImage = kindleContentArea.querySelector(".kg-full-page-img");
-    if (shouldDisplayText) {
-      container.current.setAttribute("style", "color: #000000 !important;");
-      pageImage?.classList.add("translated");
-    }
-    return () => {
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      container.current.setAttribute("style", "color: transparent;");
+    const container = containerRef.current;
+    const pageImage = kindleElements.kindleContentArea.querySelector(".kg-full-page-img");
+    const setDefaultStyles = () => {
+      container.setAttribute("style", "color: transparent;");
       pageImage?.classList.remove("translated");
     };
+    if (shouldDisplayText) {
+      container.setAttribute("style", "color: #000000 !important;");
+      pageImage?.classList.add("translated");
+    } else {
+      setDefaultStyles();
+    }
+    return setDefaultStyles;
   }, [shouldDisplayText]);
   return ReactDOM.createPortal(
     <span
@@ -102,9 +149,9 @@ export const DetectedTextContainer: React.FC = () => {
         ...containerPosition,
       }}
     >
-      {detectedText || "Hi!"}
+      {detectedText}
     </span>,
-    container.current,
+    containerRef.current,
     detectedTextContainerId
   );
 };

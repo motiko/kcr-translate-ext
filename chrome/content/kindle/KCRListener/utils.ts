@@ -36,23 +36,3 @@ export function observePageEvents(
     locationChangeObserver.disconnect();
   };
 }
-
-export function injectStylesToKindlePage({
-  kindleIframeDocument,
-}: IKindleCenterElements): VoidFunction {
-  // todo: move to DetectedTextContainer @p-mazhnik
-  const doc = kindleIframeDocument;
-  const css = `
-      #kcr-selection::selection, #kcr-selection ::selection { background: transparent; }
-      #kcr-selection::-moz-selection, #kcr-selection ::-moz-selection { background: transparent; }
-      #kcr-selection::-webkit-selection, #kcr-selection ::-webkit-selection { background: transparent; }
-      .kg-full-page-img.translated { display: none !important; }
-    `;
-  const style = doc.createElement("style");
-  style.appendChild(doc.createTextNode(css));
-  doc.head.appendChild(style);
-  return () => {
-    doc.head.removeChild(style);
-    style.remove();
-  };
-}

@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import Progress from "./Progress";
-import { ProviderContext } from "./ProviderContext";
+import { ContentContext } from "./ContentContext";
 import { getAllTexts, transformSelected, TranslationStatus } from "./utils";
 import { Commands, IOcrInputData, IOcrOutputData } from "../../const";
 import { Message, Messaging } from "../../services/messaging";
@@ -24,7 +24,7 @@ export const OCR: React.FC = () => {
     isFullPageTranslationMode,
     kindleElements,
     onTranslationFinish,
-  } = useContext(ProviderContext);
+  } = useContext(ContentContext);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState("");
   const messageListener = useCallback(
@@ -32,7 +32,9 @@ export const OCR: React.FC = () => {
       if (request.command === Commands.SET_PROGRESS) {
         setProgress(request.payload);
       }
-      sendResponse(true);
+      setTimeout(function () {
+        sendResponse(true);
+      }, 1);
       return true;
     },
     []
@@ -58,10 +60,16 @@ export const OCR: React.FC = () => {
       }
       const data = transformSelected(kindleElements, areas);
       if (data) {
-        recognizeText(messagingService, data).then(({ error, text }) => {
-          setError(error);
-          onTranslationFinish(text);
-        });
+        recognizeText(messagingService, data)
+          .then(({ error, text }) => {
+            setError(error);
+            onTranslationFinish(text);
+          })
+          .catch((error) => {
+            console.log("recognition error:", error);
+            setError(error);
+            onTranslationFinish("");
+          });
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
