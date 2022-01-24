@@ -107,6 +107,8 @@ export enum Commands {
   SETTINGS_UPDATED = "SETTINGS_UPDATED",
   EXTENSION_MOUNTED = "ACTIVATE_PAGE_ACTION",
   EXTENSION_UNMOUNTED = "EXTENSION_UNMOUNTED",
+  SET_PROGRESS = "SET_PROGRESS",
+  START_RECOGNITION = "START_RECOGNITION",
 }
 
 export enum Engines {
@@ -157,4 +159,21 @@ export const defaultTranslateEngines: readonly ITranslateEngine[] =
 export interface IEngineOptionsProps {
   selectedEngine: ITranslateEngine;
   onEngineUpdate: (newEngineData: ITranslateEngine) => void;
+}
+
+export interface IDimensions {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+}
+
+export interface IOcrInputData {
+  dataUrl: string;
+  columns: IDimensions[];
+}
+
+export interface IOcrOutputData {
+  error: string;
+  text: string;
 }

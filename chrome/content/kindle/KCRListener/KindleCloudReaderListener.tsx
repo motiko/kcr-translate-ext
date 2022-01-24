@@ -1,4 +1,4 @@
-import { getAllSelectedTexts, isKindleText } from "../utils";
+import { detectedTextContainerId, getAllSelectedTexts, isKindleText } from "../utils";
 import React, { useCallback, useEffect, useReducer } from "react";
 import { Commands, Engines } from "../../../const";
 import { injectStylesToKindlePage, observePageEvents } from "./utils";
@@ -14,6 +14,7 @@ export const KindleCloudReaderListener: React.FC<IKindleCloudReaderListenerProps
   children,
   settings,
   kindleElements,
+  messagingService,
 }) => {
   const [state, dispatch] = useReducer(reducer, undefined, createDefaultState);
   const setFullPageTranslationMode = useCallback((enabled: boolean) => {
@@ -50,19 +51,25 @@ export const KindleCloudReaderListener: React.FC<IKindleCloudReaderListenerProps
       dispatch(actionCreators.unselect());
     }
   }, [state.isFullPageTranslationMode]);
-  const onMouseUp = useCallback(() => {
-    // if (e.target.id === detectedTextContainer.id || isFullPageTranslationMode) {
-    //   return;
-    // }
-    if (state.isFullPageTranslationMode) {
-      return;
-    }
-    // find all selected areas
-    // they will exist in dnd selection and will be empty in double click selection
-    const selectedAreas = getAllSelectedTexts(kindleElements);
-    dispatch(actionCreators.startTranslation(selectedAreas));
-  }, [kindleElements, state.isFullPageTranslationMode]);
+  const onMouseUp = useCallback(
+    (e: MouseEvent) => {
+      console.log("mouseUp");
+      const target = e.target as HTMLElement | null;
+      if (target?.id === detectedTextContainerId || state.isFullPageTranslationMode) {
+        return;
+      }
+      // find all selected areas
+      // they will exist in dnd selection and will be empty in double click selection
+      const selectedAreas = getAllSelectedTexts(kindleElements);
+      if (selectedAreas.length === 0) {
+        return;
+      }
+      dispatch(actionCreators.startTranslation(selectedAreas));
+    },
+    [kindleElements, state.isFullPageTranslationMode]
+  );
   const onTranslationFinish = useCallback((detectedText: string) => {
+    console.info("Detected text:", detectedText);
     dispatch(actionCreators.finishTranslation(detectedText));
   }, []);
   useEffect(() => {
@@ -96,6 +103,7 @@ export const KindleCloudReaderListener: React.FC<IKindleCloudReaderListenerProps
     <ProviderContext.Provider
       value={{
         settings,
+        messagingService,
         kindleElements,
         ...state,
         onTranslationFinish,

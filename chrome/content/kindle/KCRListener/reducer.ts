@@ -1,5 +1,6 @@
 import { IKindleCloudReaderListenerState } from "./types";
 import { TranslationStatus } from "../utils";
+import { isFullPageTranslation } from "./utils";
 
 enum Actions {
   START_TRANSLATION = "START_TRANSLATION",
@@ -63,7 +64,7 @@ export const createDefaultState = (): IKindleCloudReaderListenerState => ({
   translationStatus: TranslationStatus.IDLE,
   detectedText: "",
   selectedAreas: [],
-  isFullPageTranslationMode: false,
+  isFullPageTranslationMode: isFullPageTranslation(),
 });
 
 export function reducer(

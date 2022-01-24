@@ -1,5 +1,9 @@
 import { IKindleCenterElements } from "../utils";
 
+export const isFullPageTranslation = () => !!document.querySelector(
+  "html.translated-ltr, head.translated-rtl, ya-tr-span, *[_msttexthash]"
+);
+
 export function observePageEvents(
   kindleElements: IKindleCenterElements,
   setFullPageTranslationMode: (enabled: boolean) => void,
@@ -7,9 +11,7 @@ export function observePageEvents(
 ): VoidFunction {
   const { locationDataContainer } = kindleElements;
   const fullPageTranslationObserver = new MutationObserver(() => {
-    const newValue = !!document.querySelector(
-      "html.translated-ltr, head.translated-rtl, ya-tr-span, *[_msttexthash]"
-    );
+    const newValue = isFullPageTranslation();
     setFullPageTranslationMode(newValue);
   });
 

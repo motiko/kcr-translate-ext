@@ -1,15 +1,14 @@
-import Frame from "react-frame-component";
 import React from "react";
 
-interface IProgressIFrameProps {
+interface IProgressProps {
   progress: number;
   error?: string;
   show: boolean;
 }
 
-const ProgressIFrame: React.FC<IProgressIFrameProps> = ({ show, progress, error = "" }) => {
+const Progress: React.FC<IProgressProps> = ({ show, progress, error = "" }) => {
   return (
-    <Frame
+    <div
       style={{
         border: "none",
         width: "15vw",
@@ -18,19 +17,17 @@ const ProgressIFrame: React.FC<IProgressIFrameProps> = ({ show, progress, error 
         right: "1em",
         bottom: "1em",
         zIndex: 99999,
-        display: show ? "block" : "none",
       }}
+      hidden={!show}
     >
       <progress
         style={{
-          position: "fixed",
-          top: 0,
-          right: 0,
           width: "100%",
           height: "100%",
         }}
         max="100"
         value={progress}
+        hidden={!!error}
       >
         {progress}%
       </progress>
@@ -43,8 +40,8 @@ const ProgressIFrame: React.FC<IProgressIFrameProps> = ({ show, progress, error 
       >
         {error}
       </p>
-    </Frame>
+    </div>
   );
 };
 
-export default ProgressIFrame;
+export default React.memo(Progress);

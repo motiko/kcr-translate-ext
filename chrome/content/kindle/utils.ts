@@ -1,9 +1,11 @@
 import { waitUntilNotNull } from "../utils";
+import { IDimensions } from "../../const";
 
 const kindleIframeId = "KindleReaderIFrame";
 const kindleContentAreaId = "kindleReader_content";
 const kindleTextClass = "kg-client-dictionary";
 const kindleTextSelectionClass = "kg-client-selection";
+export const detectedTextContainerId = "kcr-selection";
 
 export enum TranslationStatus {
   IDLE = "IDLE",
@@ -45,12 +47,12 @@ export const getAllSelectedTexts = (kindleElements: IKindleCenterElements): HTML
 
 export const strPxToFloat = (val: string): number => Number(val.replace("px", ""));
 
-export function translateSelected(
+export function transformSelected(
   { kindleContentArea }: IKindleCenterElements,
   selectedAreas: HTMLSpanElement[] = []
 ) {
   if (!selectedAreas.length) {
-    return;
+    return null;
   }
 
   const interactionLayer = kindleContentArea;
@@ -58,13 +60,13 @@ export function translateSelected(
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d");
   if (!pageImage || !ctx) {
-    return;
+    return null;
   }
   canvas.width = pageImage.clientWidth;
   canvas.height = pageImage.clientHeight;
 
   const columnElements = interactionLayer.querySelectorAll(".kg-client-interaction-layer > div");
-  const columns = (Array.from(columnElements) as HTMLDivElement[]).map((el) => {
+  const columns: IDimensions[] = (Array.from(columnElements) as HTMLDivElement[]).map((el) => {
     const { left, width } = el.style;
     const leftNum = strPxToFloat(left);
     const widthNum = strPxToFloat(width);
@@ -76,13 +78,8 @@ export function translateSelected(
     };
   });
 
-  const topLeftSelectionPosition = {
-    left: 0,
-    top: 0,
-  };
-
   const region = new Path2D();
-  selectedAreas.forEach((selection, index) => {
+  selectedAreas.forEach((selection) => {
     const { left, width, top, height } = selection.style;
     const pixels = [left, top, width, height].map((px) => strPxToFloat(px)) as [
       number,
@@ -91,10 +88,6 @@ export function translateSelected(
       number
     ];
     region.rect(...pixels);
-    if (index === 0) {
-      topLeftSelectionPosition.left = pixels[0];
-      topLeftSelectionPosition.top = pixels[1];
-    }
   });
   ctx.clip(region);
   ctx.drawImage(pageImage, 0, 0, pageImage.clientWidth, pageImage.clientHeight);
@@ -102,6 +95,5 @@ export function translateSelected(
   return {
     dataUrl,
     columns,
-    topLeftSelection: topLeftSelectionPosition,
   };
 }
