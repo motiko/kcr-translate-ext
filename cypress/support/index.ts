@@ -14,7 +14,7 @@
 
 import '@cypress/skip-test/support'
 // Import commands.js using ES2015 syntax:
-import './commands'
+import "./commands";
 
 declare namespace Cypress {
   interface Chainable {
