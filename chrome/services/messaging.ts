@@ -24,20 +24,6 @@ export type Message =
   | IStartRecognitionMessage
   | ISetProgressMessage;
 
-const getActiveTab = (winId?: number): Promise<chrome.tabs.Tab> => {
-  const config = { active: true, currentWindow: true };
-  if (winId) {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    config.windowId = winId;
-  }
-  return new Promise((resolve) => {
-    chrome.tabs.query(config, (tabs) => {
-      resolve(tabs[0]);
-    });
-  });
-};
-
 export class Messaging {
   async sendMessageToExtension<T>(message: Message): Promise<T> {
     return new Promise<T>((resolve, reject) => {
@@ -73,9 +59,5 @@ export class Messaging {
         reject(e);
       }
     });
-  }
-  async sendMessageToActiveTab<T>(message: Message) {
-    const tab = await getActiveTab();
-    return this.sendMessageToTab<T>(tab.id!, message);
   }
 }

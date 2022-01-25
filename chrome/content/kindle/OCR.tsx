@@ -34,7 +34,7 @@ export const OCR: React.FC = () => {
       }
       setTimeout(function () {
         sendResponse(true);
-      }, 1);
+      }, 0);
       return true;
     },
     []

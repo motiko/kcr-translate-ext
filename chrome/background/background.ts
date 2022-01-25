@@ -74,7 +74,7 @@ const requestListener = (
     // });
     setTimeout(function () {
       sendResponse(true);
-    }, 1);
+    }, 0);
   }
   if (request.command === Commands.START_RECOGNITION) {
     const tabId = sender.tab?.id;
@@ -93,11 +93,11 @@ const requestListener = (
     } else if (lockId) {
       setTimeout(function () {
         sendResponse({ error: "worker is busy", text: "" });
-      }, 1);
+      }, 0);
     } else {
       setTimeout(function () {
         sendResponse({ error: "worker is not initialized", text: "" });
-      }, 1);
+      }, 0);
     }
   }
   if (request.command === "GET_SETTINGS") {
