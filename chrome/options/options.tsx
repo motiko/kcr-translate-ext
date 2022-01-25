@@ -91,10 +91,11 @@ const Options = () => {
   const onRestoreBtnClick = () => {
     settingsServise
       .restoreDefaultSettings()
-      .then(({ translateEngines, ocrLangs }) => {
+      .then(({ translateEngines, ocrLangs, translationEnabled }) => {
         showMessage("defaults_restored_message");
         setEngines(translateEngines);
         setOcrLangs(ocrLangs);
+        setTranslationEnabled(translationEnabled);
       });
   };
 
@@ -177,16 +178,14 @@ const Options = () => {
               <a className="button-primary button" onClick={onSaveBtnClick}>
                 Save
               </a>
-              {selectedEngine.name !== Engines.GOOGLE_TRANSLATE_EXT && (
-                <a
-                  className="button-primary button"
-                  onClick={onTranslationToggle}
-                >
-                  {isTranslationEnabled
-                    ? "Disable Translation"
-                    : "Enable Translation"}
-                </a>
-              )}
+              <a
+                className="button-primary button"
+                onClick={onTranslationToggle}
+              >
+                {isTranslationEnabled
+                  ? "Disable Translation"
+                  : "Enable Translation"}
+              </a>
             </div>
             <div className="row container center-content">
               <div className="opaque message" id="saved_message">
