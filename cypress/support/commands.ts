@@ -10,27 +10,27 @@
 //
 //
 // -- This is a parent command --
-Cypress.Commands.add('openBook', (email: string, password: string, bookId: string) => {
-  cy.visit('https://read.amazon.com/');
+Cypress.Commands.add("openBook", (domain: string, email: string, password: string, bookId: string) => {
+  cy.visit(`https://${domain}/`);
 
-  cy.get('input[name=email]').type(email, { log: false });
-  cy.get('input[name=password]').type(password, { log: false });
+  cy.get("input[name=email]").type(email, { log: false });
+  cy.get("input[name=password]").type(password, { log: false });
 
   cy.get("input[type=submit]").click();
-
-  cy.get('body').then((body) => {
-    if (body.find('input[id=auth-captcha-guess]').length > 0) {
+  cy.wait(2000);
+  cy.get("body").then((body) => {
+    if (body.find("input[id=auth-captcha-guess]").length > 0) {
       // captcha :(
       // re-typing password
-      cy.get('input[name=password]').type(password, { log: false });
+      cy.get("input[name=password]").type(password, { log: false });
       cy.get("input[id=auth-captcha-guess]").focus().pause();
       // waiting for manual resolution
     }
   });
   cy.wait(2000);
-  cy.visit(`https://read.amazon.com/?asin=${bookId}`);
+  cy.visit(`https://${domain}/?asin=${bookId}`);
   // https://read.amazon.com/kindle-library?returnFromLogin=1&
-})
+});
 //
 //
 // -- This is a child command --

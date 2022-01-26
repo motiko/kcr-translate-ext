@@ -2,8 +2,8 @@
   "compilerOptions": {
     "target": "es5",
     "lib": ["es5", "dom"],
-    "types": ["cypress"],
+    "types": ["node", "cypress", "cypress-react-selector"],
     "allowJs": true,
   },
-  "include": ["**/*.ts"]
+  "include": ["**/*.ts", "**/*.js"]
 }

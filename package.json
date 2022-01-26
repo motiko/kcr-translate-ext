@@ -25,9 +25,10 @@
     "clean-webpack-plugin": "^4.0.0",
     "copy-webpack-plugin": "^10.2.1",
     "css-loader": "^6.5.1",
-    "cypress": "^8.5.0",
+    "cypress": "^9.3.1",
     "eslint": "^8.7.0",
     "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-cypress": "^2.12.1",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-react": "^7.28.0",
     "eslint-plugin-react-hooks": "^4.3.0",
@@ -43,7 +44,7 @@
   "scripts": {
     "dev": "webpack --config webpack.dev.js",
     "build": "webpack --config webpack.config.js",
-    "test": "cypress run --browser chrome --headed",
+    "test:cypress": "cypress run --browser chrome --headed",
     "zip": "zip pack.zip dist -r"
   },
   "repository": {

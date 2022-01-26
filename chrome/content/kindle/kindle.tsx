@@ -35,7 +35,7 @@ const KindleContentScript = () => {
   const settingsService = new Settings();
   const Wrapper = React.lazy(() => createListenerComponent(settingsService));
   return (
-    <Suspense fallback={<div />}>
+    <Suspense fallback={<div id="kcrt-fallback" />}>
       <Wrapper>
         <DetectedTextContainer />
         <OCR />

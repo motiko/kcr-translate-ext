@@ -12,12 +12,15 @@
 // https://on.cypress.io/configuration
 // ***********************************************************
 
-import '@cypress/skip-test/support'
+import "@cypress/skip-test/support";
+import "cypress-react-selector";
 // Import commands.js using ES2015 syntax:
 import "./commands";
 
-declare namespace Cypress {
-  interface Chainable {
-    openBook(email: string, password: string, bookId: string): Chainable
+declare global {
+  namespace Cypress {
+    interface Chainable<Subject> {
+      openBook(domain: string, email: string, password: string, bookId: string): Chainable<Subject>;
+    }
   }
 }

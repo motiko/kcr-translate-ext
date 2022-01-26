@@ -177,3 +177,5 @@ export interface IOcrOutputData {
   error: string;
   text: string;
 }
+
+export const kindleContentScriptMountId = "kindleContentScript";

@@ -1,9 +1,14 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import KindleContentScript from "./kindle";
+import { kindleContentScriptMountId } from "../../const";
 
-const mountId = "kindleContentScript";
-const element = document.createElement("div");
-element.setAttribute("id", mountId);
-document.body.appendChild(element);
-ReactDOM.render(<KindleContentScript />, document.getElementById(mountId));
+// this script is executed in kindle book iframe
+const parent = document.defaultView?.parent.document;
+let element = parent?.getElementById(kindleContentScriptMountId);
+if (!element) {
+  element = document.createElement("div");
+  element.setAttribute("id", kindleContentScriptMountId);
+  parent!.body.appendChild(element);
+}
+ReactDOM.render(<KindleContentScript />, element);

@@ -9,6 +9,7 @@ interface IProgressProps {
 const Progress: React.FC<IProgressProps> = ({ show, progress, error = "" }) => {
   return (
     <div
+      data-cy="kcrt-progress-container"
       style={{
         border: "none",
         width: "15vw",
@@ -21,6 +22,7 @@ const Progress: React.FC<IProgressProps> = ({ show, progress, error = "" }) => {
       hidden={!show}
     >
       <progress
+        data-cy="kcrt-progress"
         style={{
           width: "100%",
           height: "100%",
@@ -32,6 +34,7 @@ const Progress: React.FC<IProgressProps> = ({ show, progress, error = "" }) => {
         {progress}%
       </progress>
       <p
+        data-cy="kcrt-progress-error"
         style={{
           backgroundColor: "transparent",
           color: "red",
