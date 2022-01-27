@@ -13,14 +13,24 @@
 // ***********************************************************
 
 import "@cypress/skip-test/support";
-import "cypress-react-selector";
 // Import commands.js using ES2015 syntax:
 import "./commands";
+import { ISettingsPuppeteer } from "../plugins/types";
+
+before(() => {
+  cy.initPuppeteer();
+});
+after(() => {
+  cy.restoreDefaultSettings();
+});
 
 declare global {
   namespace Cypress {
     interface Chainable<Subject> {
       openBook(domain: string, email: string, password: string, bookId: string): Chainable<Subject>;
+      initPuppeteer(): Chainable<Subject>;
+      setExtensionSettings(settings: ISettingsPuppeteer): Chainable<Subject>;
+      restoreDefaultSettings(): Chainable<Subject>;
     }
   }
 }

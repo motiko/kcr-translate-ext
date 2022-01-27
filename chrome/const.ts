@@ -179,3 +179,4 @@ export interface IOcrOutputData {
 }
 
 export const kindleContentScriptMountId = "kindleContentScript";
+export const chromeExtensionId = "ipalacjfeejceeogpnfaijpadginmfhk";
