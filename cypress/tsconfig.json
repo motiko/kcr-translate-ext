@@ -1,0 +1,10 @@
+{
+  "extends": "../tsconfig",
+  "compilerOptions": {
+    "target": "es5",
+    "lib": ["es5", "dom"],
+    "types": ["node", "cypress"],
+    "allowJs": true,
+  },
+  "include": ["**/*.ts", "**/*.js"]
+}

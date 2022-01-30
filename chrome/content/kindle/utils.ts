@@ -21,8 +21,7 @@ export interface IKindleCenterElements {
 
 export const waitForKindleCenter = async (): Promise<IKindleCenterElements> => {
   const kindleElementsGetter = (): IKindleCenterElements | null => {
-    const kindleIframe = document.getElementById(kindleIframeId) as HTMLIFrameElement | null;
-    const kindleIframeDocument = kindleIframe?.contentWindow?.document;
+    const kindleIframeDocument = document;
     const kindleContentArea: HTMLElement | null | undefined =
       kindleIframeDocument?.getElementById(kindleContentAreaId);
     const locationDataContainer: HTMLElement | null | undefined =

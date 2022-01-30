@@ -17,7 +17,7 @@
     "sourceType": "module"
   },
   "plugins": ["react", "@typescript-eslint"],
-  "ignorePatterns": ["dist/**", "cypress/**", "webpack.*.js"],
+  "ignorePatterns": ["dist/**", "webpack.*.js"],
   "env": {
     "browser": true,
     "node": true,
@@ -26,5 +26,13 @@
   "rules": {
     "prettier/prettier": "warn",
     "@typescript-eslint/no-non-null-assertion": 0
-  }
+  },
+  "overrides": [
+    {
+      "files": ["*.js"],
+      "rules": {
+        "@typescript-eslint/no-var-requires": 0
+      }
+    }
+  ]
 }

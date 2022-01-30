@@ -172,19 +172,26 @@ const Options = () => {
               onEngineUpdate={onEngineUpdate}
             />
             <div className="row container center-content">
-              <a className="button-primary button" onClick={onRestoreBtnClick}>
+              <a
+                className="button-primary button"
+                onClick={onRestoreBtnClick}
+                data-cy="kcrt-options-defaults"
+              >
                 Restore Defaults
               </a>{" "}
-              <a className="button-primary button" onClick={onSaveBtnClick}>
+              <a
+                className="button-primary button"
+                onClick={onSaveBtnClick}
+                data-cy="kcrt-options-save"
+              >
                 Save
-              </a>
+              </a>{" "}
               <a
                 className="button-primary button"
                 onClick={onTranslationToggle}
+                data-cy="kcrt-options-toggle-translation"
               >
-                {isTranslationEnabled
-                  ? "Disable Translation"
-                  : "Enable Translation"}
+                {isTranslationEnabled ? "Disable Translation" : "Enable Translation"}
               </a>
             </div>
             <div className="row container center-content">

@@ -2,3 +2,7 @@ pack.zip
 node_modules/
 dist/
 .idea
+cypress/downloads/
+cypress/videos/
+cypress/screenshots/
+cypress.env.json

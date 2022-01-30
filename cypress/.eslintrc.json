@@ -1,0 +1,12 @@
+{
+  "parserOptions": {
+    "project": ["./tsconfig.json"]
+  },
+  "extends": [
+    "plugin:cypress/recommended"
+  ],
+  "rules": {
+    "@typescript-eslint/no-namespace": 0,
+    "@typescript-eslint/ban-ts-comment": 0
+  }
+}
