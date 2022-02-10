@@ -3,7 +3,7 @@ import { Commands, IOcrInputData } from "../const";
 import { doOCR, initWorker } from "./ocr";
 import { Worker } from "tesseract.js";
 import { Settings } from "../services/settings";
-import { Message, Messaging } from "../services/messaging";
+import { IStartRecognitionMessage, Message, Messaging } from "../services/messaging";
 
 let worker: Worker | null = null;
 let workerReady = false;
@@ -29,12 +29,45 @@ const onOcrProgressUpdate = (progress: number) => {
 };
 
 const setUpWorker = async () => {
-  if (!worker) {
+  if (!workerReady) {
     worker = await initWorker(onOcrProgressUpdate);
     const ocrLangs = await settingsService.getOcrLangs();
     await loadWorkerLanguage(ocrLangs);
     workerReady = true;
   }
+};
+
+const cleanupWorker = async () => {
+  await worker?.terminate();
+  worker = null;
+  workerReady = false;
+  lockId = null;
+};
+
+const startRecognition = async (request: IStartRecognitionMessage, sender: MessageSender) => {
+  let result;
+  if (lockId) {
+    // cancel previous request
+    await cleanupWorker();
+  }
+  if (!workerReady) {
+    await setUpWorker();
+  }
+  const tabId = sender.tab?.id;
+  console.log(workerReady, tabId);
+  if (workerReady && tabId) {
+    lockId = tabId;
+    const data = request.payload as IOcrInputData;
+    try {
+      result = await doOCR(worker!, data.dataUrl, data.columns);
+    } catch (e) {
+      result = { error: "recognition error", text: "" };
+    }
+    lockId = null;
+  } else {
+    result = { error: "worker is not initialized", text: "" };
+  }
+  return result;
 };
 
 const requestListener = (
@@ -77,28 +110,9 @@ const requestListener = (
     }, 0);
   }
   if (request.command === Commands.START_RECOGNITION) {
-    const tabId = sender.tab?.id;
-    // todo: handle tabId === lockId case,
-    // we should handle latest request
-    if (workerReady && tabId && !lockId) {
-      lockId = tabId;
-      const data = request.payload as IOcrInputData;
-      doOCR(worker!, data.dataUrl, data.columns)
-        .then((result) => {
-          sendResponse(result);
-        })
-        .finally(() => {
-          lockId = null;
-        });
-    } else if (lockId) {
-      setTimeout(function () {
-        sendResponse({ error: "worker is busy", text: "" });
-      }, 0);
-    } else {
-      setTimeout(function () {
-        sendResponse({ error: "worker is not initialized", text: "" });
-      }, 0);
-    }
+    startRecognition(request, sender).then((result) => {
+      sendResponse(result);
+    });
   }
   if (request.command === "GET_SETTINGS") {
     // todo: refactor
@@ -122,7 +136,7 @@ chrome.runtime.onMessage.addListener(requestListener);
 
 chrome.runtime.onSuspend.addListener(() => {
   console.log("Unloading.");
-  worker?.terminate();
+  cleanupWorker();
 });
 
 export {};
