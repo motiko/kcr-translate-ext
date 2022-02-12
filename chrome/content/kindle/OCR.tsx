@@ -67,7 +67,7 @@ export const OCR: React.FC = () => {
           })
           .catch((error) => {
             console.log("recognition error:", error);
-            setError(error);
+            setError(error.message);
             onTranslationFinish("");
           });
       }
