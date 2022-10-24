@@ -62,6 +62,7 @@ export const OCR: React.FC = () => {
       if (data) {
         recognizeText(messagingService, data)
           .then(({ error, text }) => {
+            console.log("recognition error:", error);
             setError(error);
             onTranslationFinish(text);
           })
