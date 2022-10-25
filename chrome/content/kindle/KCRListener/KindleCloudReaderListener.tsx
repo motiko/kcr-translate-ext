@@ -20,7 +20,6 @@ export const KindleCloudReaderListener: React.FC<IKindleCloudReaderListenerProps
   const setFullPageTranslationMode = useCallback((enabled: boolean) => {
     dispatch(actionCreators.setFullPageTranslationMode(enabled));
   }, []);
-  console.log("state", state);
   const onLocationChange = useCallback(() => {
     if (state.isFullPageTranslationMode) {
       // if we in full page translation mode,
