@@ -20,6 +20,7 @@ export const KindleCloudReaderListener: React.FC<IKindleCloudReaderListenerProps
   const setFullPageTranslationMode = useCallback((enabled: boolean) => {
     dispatch(actionCreators.setFullPageTranslationMode(enabled));
   }, []);
+  console.log("state", state);
   const onLocationChange = useCallback(() => {
     if (state.isFullPageTranslationMode) {
       // if we in full page translation mode,
@@ -33,6 +34,7 @@ export const KindleCloudReaderListener: React.FC<IKindleCloudReaderListenerProps
   }, [state.isFullPageTranslationMode]);
   const onDoubleClick = useCallback(
     (e: MouseEvent) => {
+      console.debug("double click");
       const target = e.target as HTMLSpanElement | null;
       if (state.isFullPageTranslationMode || !target) {
         return;
@@ -61,6 +63,7 @@ export const KindleCloudReaderListener: React.FC<IKindleCloudReaderListenerProps
       // find all selected areas
       // they will exist in dnd selection and will be empty in double click selection
       const selectedAreas = getAllSelectedTexts(kindleElements);
+      console.debug("selectedAreas: ", selectedAreas);
       if (selectedAreas.length === 0) {
         return;
       }

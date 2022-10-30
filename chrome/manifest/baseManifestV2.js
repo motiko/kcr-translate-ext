@@ -1,7 +1,7 @@
 const commonManifest = require("./manifest.json");
 
 const makeUrl = (str) => `https://${str}/*`;
-const makeKindleUrl = (str) => `https://${str}/KindleReaderApp`; // kindle book iframe
+// const makeKindleUrl = (str) => `https://${str}/KindleReaderApp`; // kindle book iframe
 
 const kindleCloudReaderMatches = [
   "lesen.amazon.de",
@@ -41,7 +41,7 @@ module.exports = {
       run_at: "document_end",
     },
     {
-      matches: kindleCloudReaderMatches.map(makeKindleUrl),
+      matches: kindleCloudReaderMatches.map(makeUrl),
       js: ["index.js"],
       run_at: "document_end",
       all_frames: true, // allowed running extension for iframe

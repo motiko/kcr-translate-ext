@@ -13,6 +13,7 @@ const createListenerComponent = async (
   const messagingService = new Messaging();
   console.log("translateengines: ", settings.translateEngines);
   const kindleElements = await waitForKindleCenter();
+  // console.log(kindleElements);
   const ListenerWrapper: React.FC = ({ children }) => {
     if (!settings.translationEnabled) {
       console.info("Translation is disabled");
@@ -32,6 +33,7 @@ const createListenerComponent = async (
 };
 
 const KindleContentScript = () => {
+  // console.debug("KindleContentScript");
   const settingsService = new Settings();
   const Wrapper = React.lazy(() => createListenerComponent(settingsService));
   return (

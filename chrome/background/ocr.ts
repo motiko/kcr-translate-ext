@@ -1,3 +1,4 @@
+import { restoreDefaultSettings } from "./../../cypress/plugins/puppeteer";
 import Tesseract, { Worker } from "tesseract.js";
 import { IDimensions, IOcrOutputData } from "../const";
 
@@ -26,6 +27,15 @@ export const doOCR = async (
   columns: IDimensions[]
 ): Promise<IOcrOutputData> => {
   const values = [];
+  if (!columns?.length) {
+    const { data } = await worker.recognize(base64);
+    const result = data.text;
+    if (data.confidence > 0.6) {
+      return { text: result.replaceAll(/(?:\r\n|\r|\n)/g, " "), error: "" };
+    } else {
+      return { error: "Not enough confidence", text: "" };
+    }
+  }
   for (let i = 0; i < columns.length; i++) {
     const { data } = await worker.recognize(base64, {
       rectangle: columns[i],

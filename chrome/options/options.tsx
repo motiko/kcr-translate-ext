@@ -1,10 +1,7 @@
 import React, { ChangeEventHandler, useEffect, useState } from "react";
 import { Engines, ITranslateEngine, tesseractLangs } from "../const";
 import { DictCCEngineOptions } from "./dict/options";
-import {
-  GoogleTranslateEngineOptions,
-  GoogleTranslateExtEngineOptions,
-} from "./google/options";
+import { GoogleTranslateEngineOptions, GoogleTranslateExtEngineOptions } from "./google/options";
 import { Settings } from "../services/settings";
 import { showMessage } from "./utils";
 
@@ -23,11 +20,7 @@ const EnginesSelect = ({
     onChangeEngine(event.target.value as Engines);
   };
   return (
-    <select
-      id="translate_engine"
-      onChange={onSelect}
-      value={selectedEngineName}
-    >
+    <select id="translate_engine" onChange={onSelect} value={selectedEngineName}>
       {translateEngines.map((engine) => (
         <option key={engine.name} value={engine.name}>
           {engine.label}
@@ -46,11 +39,9 @@ const Options = () => {
 
   const onTranslationToggle = () => {
     setTranslationEnabled(!isTranslationEnabled);
-    settingsServise
-      .setTranslationEnabled(!isTranslationEnabled)
-      .catch((error) => {
-        setTranslationEnabled(!isTranslationEnabled);
-      });
+    settingsServise.setTranslationEnabled(!isTranslationEnabled).catch((error) => {
+      setTranslationEnabled(!isTranslationEnabled);
+    });
   };
 
   const onChangeEngine = (engineName: Engines) => {
@@ -77,9 +68,7 @@ const Options = () => {
     setEngines(newEngines);
   };
 
-  const onOcrLanguageSelect: ChangeEventHandler<HTMLSelectElement> = (
-    event
-  ) => {
+  const onOcrLanguageSelect: ChangeEventHandler<HTMLSelectElement> = (event) => {
     setOcrLangs(event.target.value);
   };
   const onSaveBtnClick = () => {
@@ -163,10 +152,7 @@ const Options = () => {
               selectedEngine={selectedEngine}
               onEngineUpdate={onEngineUpdate}
             />
-            <DictCCEngineOptions
-              selectedEngine={selectedEngine}
-              onEngineUpdate={onEngineUpdate}
-            />
+            <DictCCEngineOptions selectedEngine={selectedEngine} onEngineUpdate={onEngineUpdate} />
             <GoogleTranslateExtEngineOptions
               selectedEngine={selectedEngine}
               onEngineUpdate={onEngineUpdate}

@@ -4,7 +4,7 @@ import { IDimensions } from "../../const";
 const kindleIframeId = "KindleReaderIFrame";
 const kindleContentAreaId = "kindleReader_content";
 const kindleTextClass = "kg-client-dictionary";
-const kindleTextSelectionClass = "kg-client-selection";
+const kindleTextSelectionClass = "kg-selection";
 export const detectedTextContainerId = "kcr-selection";
 
 export enum TranslationStatus {
@@ -23,11 +23,14 @@ export const waitForKindleCenter = async (): Promise<IKindleCenterElements> => {
   const kindleElementsGetter = (): IKindleCenterElements | null => {
     const kindleIframeDocument = document;
     const kindleContentArea: HTMLElement | null | undefined =
-      kindleIframeDocument?.getElementById(kindleContentAreaId);
+      kindleIframeDocument?.getElementById("kr-renderer")?.parentElement?.parentElement;
     const locationDataContainer: HTMLElement | null | undefined =
       kindleIframeDocument?.getElementById("kindleReader_locationPopup_labelDiv");
+    // console.debug("locationDataContainer", locationDataContainer);
+    // console.debug("kindleContenArea", kindleContentArea);
+    // console.debug("kindleIframe", kindleIframeDocument);
     if (!kindleContentArea || !locationDataContainer) {
-      return null;
+      console.error("KCR translate kindle objects not found: locationDataContainer, kindleContentArea ");
     }
     return {
       kindleIframeDocument: kindleIframeDocument!,
@@ -76,6 +79,7 @@ export function transformSelected(
       height: pageImage.clientHeight,
     };
   });
+  // console.debug("columns", columns);
 
   const region = new Path2D();
   selectedAreas.forEach((selection) => {
@@ -86,11 +90,13 @@ export function transformSelected(
       number,
       number
     ];
+    // console.debug("pixels", pixels);
     region.rect(...pixels);
   });
   ctx.clip(region);
   ctx.drawImage(pageImage, 0, 0, pageImage.clientWidth, pageImage.clientHeight);
   const dataUrl = canvas.toDataURL();
+  // console.debug(dataUrl);
   return {
     dataUrl,
     columns,
