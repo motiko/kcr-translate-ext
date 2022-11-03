@@ -61,12 +61,15 @@ export const KindleCloudReaderListener: React.FC<IKindleCloudReaderListenerProps
       }
       // find all selected areas
       // they will exist in dnd selection and will be empty in double click selection
-      const selectedAreas = getAllSelectedTexts(kindleElements);
-      console.debug("selectedAreas: ", selectedAreas);
-      if (selectedAreas.length === 0) {
-        return;
-      }
-      dispatch(actionCreators.startTranslation(selectedAreas));
+      setTimeout(() => {
+        const selectedAreas = getAllSelectedTexts(kindleElements);
+        console.debug("selectedAreas: ", selectedAreas);
+        if (selectedAreas.length === 0) {
+          return;
+        }
+        dispatch(actionCreators.startTranslation(selectedAreas));
+      }, 0); // let the click event finish and unselect previosly selected areas
+      // prevent openning a popup with translation when clicking outside of previously selected areas
     },
     [kindleElements, state.isFullPageTranslationMode]
   );
