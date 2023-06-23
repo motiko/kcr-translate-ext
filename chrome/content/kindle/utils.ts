@@ -23,9 +23,9 @@ export const waitForKindleCenter = async (): Promise<IKindleCenterElements> => {
   const kindleElementsGetter = (): IKindleCenterElements | null => {
     const kindleIframeDocument = document;
     const kindleContentArea: HTMLElement | null | undefined =
-      kindleIframeDocument?.getElementById("kr-renderer")?.parentElement?.parentElement;
+      kindleIframeDocument?.getElementById("root");
     const locationDataContainer: HTMLElement | null | undefined =
-      kindleIframeDocument?.getElementById("kindleReader_locationPopup_labelDiv");
+      kindleIframeDocument?.getElementById("kr-fullpage-app");
     // console.debug("locationDataContainer", locationDataContainer);
     // console.debug("kindleContenArea", kindleContentArea);
     // console.debug("kindleIframe", kindleIframeDocument);
@@ -58,10 +58,12 @@ export function transformSelected(
   }
 
   const interactionLayer = kindleContentArea;
-  const pageImage: HTMLImageElement | null = interactionLayer.querySelector(".kg-full-page-img");
+  const pageImage: HTMLImageElement | null = interactionLayer.querySelector(".kg-full-page-img img");
+  console.debug("pageImage", pageImage)
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d");
   if (!pageImage || !ctx) {
+    console.error("pageImage or ctx not defined");
     return null;
   }
   canvas.width = pageImage.clientWidth;

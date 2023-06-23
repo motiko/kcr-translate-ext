@@ -1,8 +1,7 @@
 import { IKindleCenterElements } from "../utils";
 
-export const isFullPageTranslation = () => !!document.querySelector(
-  "html.translated-ltr, head.translated-rtl, ya-tr-span, *[_msttexthash]"
-);
+export const isFullPageTranslation = () =>
+  !!document.querySelector("html.translated-ltr, head.translated-rtl, ya-tr-span, *[_msttexthash]");
 
 export function observePageEvents(
   kindleElements: IKindleCenterElements,
@@ -25,13 +24,15 @@ export function observePageEvents(
     // user navigates to another page/location
     onKindleLocationChange();
   });
-  locationDataContainer.classList.add("skiptranslate");
-  locationChangeObserver.observe(locationDataContainer, {
-    characterData: true,
-    childList: true,
-  });
+  if (locationDataContainer) {
+    locationDataContainer.classList.add("skiptranslate");
+    locationChangeObserver.observe(locationDataContainer, {
+      characterData: true,
+      childList: true,
+    });
+  }
   return () => {
-    locationDataContainer.classList.remove("skiptranslate");
+    locationDataContainer && locationDataContainer.classList.remove("skiptranslate");
     fullPageTranslationObserver.disconnect();
     locationChangeObserver.disconnect();
   };
