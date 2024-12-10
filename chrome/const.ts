@@ -126,35 +126,34 @@ export interface ITranslateEngine {
   readonly selected: boolean;
 }
 
-export const defaultTranslateEngines: readonly ITranslateEngine[] =
-  Object.freeze([
-    {
-      name: Engines.GOOGLE_TRANSLATE,
-      label: "Google Translate",
-      url: "https://translate.google.com/#auto/en/",
-      autoread: false,
-      selected: true,
-    },
-    {
-      name: Engines.GOOGLE_TRANSLATE_EXT,
-      label: "Google Translate Extension",
-      url: "",
-      autoread: false,
-      selected: false,
-    },
-    {
-      name: Engines.DICT_CC,
-      label: "dict.cc",
-      url: "http://pocket.dict.cc/?s=",
-      selected: false,
-    },
-    {
-      name: Engines.CUSTOM,
-      label: "Custom",
-      url: "",
-      selected: false,
-    },
-  ]);
+export const defaultTranslateEngines: readonly ITranslateEngine[] = Object.freeze([
+  {
+    name: Engines.GOOGLE_TRANSLATE,
+    label: "Google Translate",
+    url: "https://translate.google.com/#auto/en/",
+    autoread: false,
+    selected: true,
+  },
+  {
+    name: Engines.GOOGLE_TRANSLATE_EXT,
+    label: "Google Translate Extension",
+    url: "",
+    autoread: false,
+    selected: false,
+  },
+  {
+    name: Engines.DICT_CC,
+    label: "dict.cc",
+    url: "http://pocket.dict.cc/?s=",
+    selected: false,
+  },
+  {
+    name: Engines.CUSTOM,
+    label: "Custom",
+    url: "",
+    selected: false,
+  },
+]);
 
 export interface IEngineOptionsProps {
   selectedEngine: ITranslateEngine;

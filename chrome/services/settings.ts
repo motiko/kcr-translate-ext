@@ -1,4 +1,4 @@
-import { Commands, defaultTranslateEngines, ITranslateEngine } from '../const'
+import { Commands, defaultTranslateEngines, ITranslateEngine } from "../const.ts";
 
 interface IStorageObjects {
   readonly ocrLangs: string;
@@ -52,39 +52,29 @@ export class Settings {
 
   getOcrLangs(): Promise<string> {
     return new Promise<string>((resolve) => {
-      chrome.storage.sync.get(
-        this.ocrLangsKey,
-        ({ ocrLangs = Settings.defaults.ocrLangs }) => {
-          resolve(ocrLangs);
-        }
-      );
+      chrome.storage.sync.get(this.ocrLangsKey, ({ ocrLangs = Settings.defaults.ocrLangs }) => {
+        resolve(ocrLangs);
+      });
     });
   }
 
   getTranslateEngines(): Promise<ITranslateEngine[]> {
     return new Promise<ITranslateEngine[]>((resolve) => {
-      chrome.storage.sync.get(
-        this.translateEnginesKey,
-        ({ translateEngines }) => {
-          const result: ITranslateEngine[] =
-            translateEngines || Settings.defaults.translateEngines;
-          const curTranslateEnginesNames = result.map((e) => e.name);
-          Settings.defaults.translateEngines.forEach((engine) => {
-            // check if `result` have all default engines
-            if (!curTranslateEnginesNames.includes(engine.name)) {
-              result.push(engine);
-            }
-          });
-          resolve(result);
-        }
-      );
+      chrome.storage.sync.get(this.translateEnginesKey, ({ translateEngines }) => {
+        const result: ITranslateEngine[] = translateEngines || Settings.defaults.translateEngines;
+        const curTranslateEnginesNames = result.map((e) => e.name);
+        Settings.defaults.translateEngines.forEach((engine) => {
+          // check if `result` have all default engines
+          if (!curTranslateEnginesNames.includes(engine.name)) {
+            result.push(engine);
+          }
+        });
+        resolve(result);
+      });
     });
   }
 
-  async updateValues(
-    engines: ITranslateEngine[],
-    ocrLangs: string
-  ): Promise<void> {
+  async updateValues(engines: ITranslateEngine[], ocrLangs: string): Promise<void> {
     return new Promise<void>((resolve) => {
       chrome.storage.sync.set(
         {

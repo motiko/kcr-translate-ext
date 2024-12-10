@@ -6,6 +6,5 @@
   "icons": {
     "16": "img/book_16.png",
     "128": "img/book_128.png"
-  },
-  "permissions": ["storage", "<all_urls>"]
+  }
 }

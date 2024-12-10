@@ -9,18 +9,8 @@ const TerserPlugin = require("terser-webpack-plugin");
 const inputDir = path.join(__dirname, "chrome");
 const outputDir = path.join(__dirname, "dist");
 
-module.exports = {
+const commonConfig = {
   mode: "production",
-  entry: {
-    autoplay: path.join(inputDir, "content", "autoplay.js"),
-    index: path.join(inputDir, "content", "kindle"),
-    options: path.join(inputDir, "options"),
-    background: path.join(inputDir, "background", "background.ts"),
-  },
-  output: {
-    path: outputDir,
-    filename: "[name].js",
-  },
   module: {
     rules: [
       {
@@ -30,7 +20,7 @@ module.exports = {
           options: {
             presets: [
               "@babel/preset-env",
-              ["@babel/preset-react", {"runtime": "automatic"}], // https://stackoverflow.com/questions/32070303/uncaught-referenceerror-react-is-not-defined
+              ["@babel/preset-react", { runtime: "automatic" }], // https://stackoverflow.com/questions/32070303/uncaught-referenceerror-react-is-not-defined
               "@babel/preset-typescript",
             ],
             plugins: [["@babel/plugin-transform-runtime"]],
@@ -56,10 +46,10 @@ module.exports = {
   },
   plugins: [
     new webpack.ProgressPlugin(),
-    new CleanWebpackPlugin(),
+    // new CleanWebpackPlugin(),
     new WebpackExtensionManifestPlugin({
       config: {
-        base: path.join(inputDir, "manifest", "baseManifestV2.js"),
+        base: path.join(inputDir, "manifest", "baseManifestV3.js"),
       },
       pkgJsonProps: ["version", "description"],
     }),
@@ -71,37 +61,54 @@ module.exports = {
         },
         // add tesseract-related bundles
         {
-          from: path.join(
-            __dirname,
-            "node_modules",
-            "tesseract.js",
-            "dist",
-            "worker.min.js"
-          ),
+          from: path.join(__dirname, "node_modules", "tesseract.js", "dist", "worker.min.js"),
           to: path.join(outputDir, "lib", "tesseract"),
         },
         {
-          from: path.join(
-            __dirname,
-            "node_modules",
-            "tesseract.js-core",
-            "tesseract-core.asm.js"
-          ),
+          from: path.join(__dirname, "node_modules", "tesseract.js-core", "tesseract-core.asm.js"),
           to: path.join(outputDir, "lib", "tesseract"),
         },
       ],
     }),
-    new HtmlWebpackPlugin({
+    new HtmlWebpackPlugin([{
       template: path.join(inputDir, "options", "options.html"),
       filename: "options.html",
       chunks: ["options"],
-    }),
+    },{
+      template: path.join(inputDir, "background", "offscreen.html"),
+      filename: "background.html",
+    }]),
   ],
   optimization: {
-    minimizer: [
-      new TerserPlugin({
-        exclude: /\.asm.js$/,
-      }),
-    ],
+    minimize: false,
   },
 };
+
+const mainConfig = {
+  ...commonConfig,
+  entry: {
+    autoplay: path.join(inputDir, "content", "autoplay.js"),
+    index: path.join(inputDir, "content", "kindle"),
+    options: path.join(inputDir, "options"),
+    offscreen: path.join(inputDir, "background", "offscreen.ts"),
+  },
+  output: {
+    path: outputDir,
+    filename: "[name].js",
+  },
+  target: "web",
+};
+
+const serviceWorkerConfig = {
+  ...commonConfig,
+  entry: {
+    background: path.join(inputDir, "background", "background.ts"),
+  },
+  output: {
+    path: outputDir,
+    filename: "background.js",
+  },
+  target: "webworker"
+};
+
+module.exports = [mainConfig, serviceWorkerConfig];

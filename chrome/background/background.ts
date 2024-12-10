@@ -1,74 +1,37 @@
 import MessageSender = chrome.runtime.MessageSender;
-import { Commands, IOcrInputData } from "../const";
-import { doOCR, initWorker } from "./ocr";
-import { Worker } from "tesseract.js";
-import { Settings } from "../services/settings";
-import { IStartRecognitionMessage, Message, Messaging } from "../services/messaging";
+import { Commands } from "../const";
+// import { Settings } from "../services/settings.ts";
+import type { Message } from "../services/messaging.ts";
 
-let worker: Worker | null = null;
-let workerReady = false;
-// id of the tab that is currently using worker
-let lockId: number | null = null;
+let creating: Promise<void> | null = null; // A global promise to avoid concurrency issues
+async function setupOffscreenDocument(path: string) {
+  // Check all windows controlled by the service worker to see if one
+  // of them is the offscreen document with the given path
+  const offscreenUrl = chrome.runtime.getURL(path);
+  const existingContexts = await chrome.runtime.getContexts({
+    contextTypes: ["OFFSCREEN_DOCUMENT"],
+    documentUrls: [offscreenUrl],
+  });
 
-const settingsService = new Settings();
-const messagingService = new Messaging();
-
-async function loadWorkerLanguage(ocrLangs: string) {
-  await worker?.loadLanguage(ocrLangs);
-  await worker?.initialize(ocrLangs);
-}
-
-const onOcrProgressUpdate = (progress: number) => {
-  if (!lockId) {
+  if (existingContexts.length > 0) {
     return;
   }
-  void messagingService.sendMessageToTab(lockId, {
-    command: Commands.SET_PROGRESS,
-    payload: progress,
-  });
-};
 
-const setUpWorker = async () => {
-  if (!workerReady) {
-    worker = await initWorker(onOcrProgressUpdate);
-    const ocrLangs = await settingsService.getOcrLangs();
-    await loadWorkerLanguage(ocrLangs);
-    workerReady = true;
-  }
-};
-
-const cleanupWorker = async () => {
-  await worker?.terminate();
-  worker = null;
-  workerReady = false;
-  lockId = null;
-};
-
-const startRecognition = async (request: IStartRecognitionMessage, sender: MessageSender) => {
-  let result;
-  if (lockId) {
-    // cancel previous request
-    await cleanupWorker();
-  }
-  if (!workerReady) {
-    await setUpWorker();
-  }
-  const tabId = sender.tab?.id;
-  console.log(workerReady, tabId);
-  if (workerReady && tabId) {
-    lockId = tabId;
-    const data = request.payload as IOcrInputData;
-    try {
-      result = await doOCR(worker!, data.dataUrl, data.columns);
-    } catch (e) {
-      result = { error: "recognition error", text: "" };
-    }
-    lockId = null;
+  // create offscreen document
+  if (creating) {
+    await creating;
   } else {
-    result = { error: "worker is not initialized", text: "" };
+    creating = chrome.offscreen.createDocument({
+      url: path,
+      reasons: [chrome.offscreen.Reason.WORKERS],
+      justification: "Doing OCR",
+    });
+    await creating;
+    creating = null;
   }
-  return result;
-};
+}
+
+let lockId: number | null = null;
 
 const requestListener = (
   request: Message,
@@ -79,12 +42,13 @@ const requestListener = (
   if (request.command === Commands.EXTENSION_MOUNTED) {
     const tabId = sender.tab?.id;
     if (tabId) {
-      chrome.pageAction.show(tabId);
+      chrome.action.show(tabId);
     }
     // init worker
-    setUpWorker().then(() => {
-      sendResponse(true);
-    });
+    // setUpWorker().then(() => {
+    // sendResponse(true);
+    // });
+    return true; // Keep message channel open for async response
   }
   if (request.command === Commands.EXTENSION_UNMOUNTED) {
     if (lockId && sender.tab?.id === lockId) {
@@ -92,51 +56,48 @@ const requestListener = (
     }
   }
   if (request.command === Commands.SETTINGS_UPDATED) {
-    chrome.tabs.executeScript({
-      file: "index.js",
-    });
-    // chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
-    //   chrome.tabs.sendMessage(tabs[0].id, { command: "SETTINGS_UPDATED" }, function(response) {
-    //     if (!chrome.runtime.lastError) {
-    //       // if you have any response
-    //     } else {
-    //       // if you don't have any response it's ok but you should actually handle
-    //       // it and we are doing this when we are examining chrome.runtime.lastError
-    //     }
-    //   });
+    // chrome.tabs.executeScript({
+    //   target: { tabId: sender.tab?.id || 0 },
+    //   files: ["index.js"],
     // });
     setTimeout(function () {
       sendResponse(true);
     }, 0);
+    return true; // Keep message channel open for async response
   }
   if (request.command === Commands.START_RECOGNITION) {
-    startRecognition(request, sender).then((result) => {
-      sendResponse(result);
+    console.log("startRecognition", request.payload);
+    setupOffscreenDocument("offscreen.html").then(() => {
+      chrome.runtime.sendMessage({
+        type: "startRecognition",
+        target: "offscreen-doc",
+        data: request.payload,
+      });
     });
+    // startRecognition(request, sender).then((result) => {
+    // sendResponse(result);
+    // });
+    return true; // Keep message channel open for async response
   }
   if (request.command === "GET_SETTINGS") {
-    // todo: refactor
     chrome.storage.sync.get("translateEngines", ({ translateEngines }) => {
-      const settings = translateEngines
-        ? translateEngines.find((e) => e.selected)
-        : {
-            name: "google",
-            label: "Google Translate",
-            url: "https://translate.google.com/?hl=en#auto/en/",
-            autoread: false,
-          };
+      const settings = translateEngines ? translateEngines.find((e) => e.selected) : null;
       sendResponse(settings);
     });
+    return true; // Keep message channel open for async response
   }
-  return true;
 };
 
+// Add listeners when service worker starts
+self.addEventListener("activate", (event) => {
+  console.log("Service worker activated");
+});
+
+// Register message listeners
 chrome.runtime.onMessageExternal.addListener(requestListener);
 chrome.runtime.onMessage.addListener(requestListener);
 
-chrome.runtime.onSuspend.addListener(() => {
-  console.log("Unloading.");
-  cleanupWorker();
-});
-
-export {};
+// Clean up when service worker is about to be terminated
+// chrome.runtime.onSuspend.addListener(() => {
+//   void cleanupWorker();
+// });

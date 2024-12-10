@@ -28,6 +28,7 @@ export class Messaging {
   async sendMessageToExtension<T>(message: Message): Promise<T> {
     return new Promise<T>((resolve, reject) => {
       try {
+        console.log("sendMessageToExtension:::::", message);
         chrome.runtime.sendMessage(message, (response) => {
           if (!chrome.runtime.lastError) {
             // if we have any response

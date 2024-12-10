@@ -59,6 +59,7 @@ export const OCR: React.FC = () => {
         areas = getAllTexts(kindleElements);
       }
       const data = transformSelected(kindleElements, areas);
+      console.log("data (transformSelected):", data);
       if (data) {
         recognizeText(messagingService, data)
           .then(({ error, text }) => {
