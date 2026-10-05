@@ -66,7 +66,7 @@ export const GoogleTranslateEngineOptions = ({
     if (type === "to") {
       newUrl = prevUrl.replace(/(#\w+\/)\w+\//, `$1${langCode}/`);
     } else {
-      newUrl = prevUrl.replace(/\#\w+\//, `#${langCode}/`);
+      newUrl = prevUrl.replace(/#\w+\//, `#${langCode}/`);
     }
     onEngineUpdate({
       ...selectedEngine,
@@ -120,6 +120,7 @@ export const GoogleTranslateExtEngineOptions = ({
       Please note that in order to use this engine you need to install{" "}
       <a
         target="_blank"
+        rel="noreferrer"
         href="https://chrome.google.com/webstore/detail/google-translate/aapbdbdomjkkjkaonfhkkikfgjllcleb?hl=en"
       >
         Google Translate

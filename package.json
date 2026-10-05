@@ -46,6 +46,8 @@
   "scripts": {
     "dev": "webpack --config webpack.dev.js",
     "build": "webpack --config webpack.config.js",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint chrome cypress --ext .ts,.tsx,.js",
     "test:cypress": "cypress run --browser chrome --headed",
     "zip": "zip pack.zip dist -r"
   },
