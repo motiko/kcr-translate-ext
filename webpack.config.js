@@ -16,6 +16,7 @@ module.exports = {
     index: path.join(inputDir, "content", "kindle"),
     options: path.join(inputDir, "options"),
     background: path.join(inputDir, "background", "background.ts"),
+    offscreen: path.join(inputDir, "offscreen", "offscreen.ts"),
   },
   output: {
     path: outputDir,
@@ -59,7 +60,7 @@ module.exports = {
     new CleanWebpackPlugin(),
     new WebpackExtensionManifestPlugin({
       config: {
-        base: path.join(inputDir, "manifest", "baseManifestV2.js"),
+        base: path.join(inputDir, "manifest", "baseManifestV3.js"),
       },
       pkgJsonProps: ["version", "description"],
     }),
@@ -95,6 +96,11 @@ module.exports = {
       template: path.join(inputDir, "options", "options.html"),
       filename: "options.html",
       chunks: ["options"],
+    }),
+    new HtmlWebpackPlugin({
+      template: path.join(inputDir, "offscreen", "offscreen.html"),
+      filename: "offscreen.html",
+      chunks: ["offscreen"],
     }),
   ],
   optimization: {

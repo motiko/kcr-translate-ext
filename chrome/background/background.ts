@@ -1,142 +1,151 @@
 import MessageSender = chrome.runtime.MessageSender;
-import { Commands, IOcrInputData } from "../const";
-import { doOCR, initWorker } from "./ocr";
-import { Worker } from "tesseract.js";
+import { Commands, IOcrOutputData } from "../const";
 import { Settings } from "../services/settings";
-import { IStartRecognitionMessage, Message, Messaging } from "../services/messaging";
+import { Message, Messaging } from "../services/messaging";
 
-let worker: Worker | null = null;
-let workerReady = false;
-// id of the tab that is currently using worker
-let lockId: number | null = null;
+// MV3 service worker. It is terminated when idle, so it keeps no state: OCR runs in the
+// offscreen document (chrome/offscreen), this script only routes messages to and from it.
+
+const offscreenUrl = "offscreen.html";
 
 const settingsService = new Settings();
 const messagingService = new Messaging();
 
-async function loadWorkerLanguage(ocrLangs: string) {
-  await worker?.loadLanguage(ocrLangs);
-  await worker?.initialize(ocrLangs);
-}
+// only one offscreen document may exist, guards against concurrent createDocument calls
+let creatingOffscreen: Promise<void> | null = null;
 
-const onOcrProgressUpdate = (progress: number) => {
-  if (!lockId) {
+const hasOffscreenDocument = async (): Promise<boolean> => {
+  const contexts = await chrome.runtime.getContexts({
+    contextTypes: [chrome.runtime.ContextType.OFFSCREEN_DOCUMENT],
+    documentUrls: [chrome.runtime.getURL(offscreenUrl)],
+  });
+  return contexts.length > 0;
+};
+
+const ensureOffscreenDocument = async () => {
+  if (await hasOffscreenDocument()) {
     return;
   }
-  void messagingService.sendMessageToTab(lockId, {
-    command: Commands.SET_PROGRESS,
-    payload: progress,
-  });
+  if (!creatingOffscreen) {
+    creatingOffscreen = chrome.offscreen
+      .createDocument({
+        url: offscreenUrl,
+        reasons: [chrome.offscreen.Reason.WORKERS],
+        justification: "Run the Tesseract OCR worker",
+      })
+      .finally(() => {
+        creatingOffscreen = null;
+      });
+  }
+  await creatingOffscreen;
 };
 
-const setUpWorker = async () => {
-  if (!workerReady) {
-    worker = await initWorker(onOcrProgressUpdate);
-    const ocrLangs = await settingsService.getOcrLangs();
-    await loadWorkerLanguage(ocrLangs);
-    workerReady = true;
-  }
+const sendToOffscreen = async <T>(message: Message): Promise<T> => {
+  await ensureOffscreenDocument();
+  return messagingService.sendMessageToExtension<T>({ ...message, target: "offscreen" });
 };
 
-const cleanupWorker = async () => {
-  await worker?.terminate();
-  worker = null;
-  workerReady = false;
-  lockId = null;
-};
-
-const startRecognition = async (request: IStartRecognitionMessage, sender: MessageSender) => {
-  let result;
-  if (lockId) {
-    // cancel previous request
-    await cleanupWorker();
+const reinjectContentScript = async () => {
+  const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+  if (!tab?.id) {
+    return;
   }
-  if (!workerReady) {
-    await setUpWorker();
+  try {
+    await chrome.scripting.executeScript({ target: { tabId: tab.id }, files: ["index.js"] });
+  } catch (e) {
+    // the active tab is not a kindle cloud reader tab
   }
-  const tabId = sender.tab?.id;
-  console.log(workerReady, tabId);
-  if (workerReady && tabId) {
-    lockId = tabId;
-    const data = request.payload as IOcrInputData;
-    try {
-      result = await doOCR(worker!, data.dataUrl, data.columns);
-    } catch (e) {
-      result = { error: "recognition error", text: "" };
-    }
-    lockId = null;
-  } else {
-    result = { error: "worker is not initialized", text: "" };
-  }
-  return result;
 };
 
 const requestListener = (
   request: Message,
   sender: MessageSender,
-  sendResponse: (response: any) => void
+  sendResponse: (response: unknown) => void
 ) => {
-  console.log(request.command);
+  if (request.target === "offscreen") {
+    return false;
+  }
+  if (request.command !== Commands.SET_PROGRESS) {
+    console.log(request.command);
+  }
   if (request.command === Commands.EXTENSION_MOUNTED) {
-    const tabId = sender.tab?.id;
-    if (tabId) {
-      chrome.pageAction.show(tabId);
-    }
     // init worker
-    setUpWorker().then(() => {
-      sendResponse(true);
-    });
+    (async () => {
+      try {
+        const ocrLangs = await settingsService.getOcrLangs();
+        sendResponse(await sendToOffscreen({ command: Commands.EXTENSION_MOUNTED, ocrLangs }));
+      } catch (e) {
+        sendResponse(false);
+      }
+    })();
+    return true;
   }
   if (request.command === Commands.EXTENSION_UNMOUNTED) {
-    if (lockId && sender.tab?.id === lockId) {
-      lockId = null;
-    }
+    const tabId = sender.tab?.id;
+    (async () => {
+      // don't create the offscreen document just to release its lock
+      if (tabId && (await hasOffscreenDocument())) {
+        await sendToOffscreen({ command: Commands.EXTENSION_UNMOUNTED, tabId }).catch(
+          () => undefined
+        );
+      }
+      sendResponse(true);
+    })();
+    return true;
   }
   if (request.command === Commands.SETTINGS_UPDATED) {
-    chrome.tabs.executeScript({
-      file: "index.js",
-    });
-    // chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
-    //   chrome.tabs.sendMessage(tabs[0].id, { command: "SETTINGS_UPDATED" }, function(response) {
-    //     if (!chrome.runtime.lastError) {
-    //       // if you have any response
-    //     } else {
-    //       // if you don't have any response it's ok but you should actually handle
-    //       // it and we are doing this when we are examining chrome.runtime.lastError
-    //     }
-    //   });
-    // });
-    setTimeout(function () {
+    (async () => {
+      await reinjectContentScript();
       sendResponse(true);
-    }, 0);
+    })();
+    return true;
   }
   if (request.command === Commands.START_RECOGNITION) {
-    startRecognition(request, sender).then((result) => {
+    const tabId = sender.tab?.id;
+    (async () => {
+      let result: IOcrOutputData;
+      try {
+        if (!tabId) {
+          throw new Error("recognition requested outside of a tab");
+        }
+        const ocrLangs = await settingsService.getOcrLangs();
+        result = await sendToOffscreen<IOcrOutputData>({
+          command: Commands.START_RECOGNITION,
+          payload: request.payload,
+          tabId,
+          ocrLangs,
+        });
+      } catch (e) {
+        result = { error: "worker is not initialized", text: "" };
+      }
       sendResponse(result);
-    });
+    })();
+    return true;
   }
-  if (request.command === "GET_SETTINGS") {
-    // todo: refactor
-    chrome.storage.sync.get("translateEngines", ({ translateEngines }) => {
-      const settings = translateEngines
-        ? translateEngines.find((e) => e.selected)
-        : {
-            name: "google",
-            label: "Google Translate",
-            url: "https://translate.google.com/?hl=en#auto/en/",
-            autoread: false,
-          };
-      sendResponse(settings);
-    });
+  if (request.command === Commands.SET_PROGRESS && request.target === "background") {
+    // OCR progress from the offscreen document
+    if (request.tabId) {
+      messagingService
+        .sendMessageToTab(request.tabId, {
+          command: Commands.SET_PROGRESS,
+          payload: request.payload,
+        })
+        .catch(() => undefined);
+    }
+    return false;
   }
-  return true;
+  if (request.command === Commands.GET_SETTINGS) {
+    // used by autoplay.js on translate.google.com
+    (async () => {
+      const translateEngines = await settingsService.getTranslateEngines();
+      sendResponse(translateEngines.find((e) => e.selected));
+    })();
+    return true;
+  }
+  return false;
 };
 
 chrome.runtime.onMessageExternal.addListener(requestListener);
 chrome.runtime.onMessage.addListener(requestListener);
-
-chrome.runtime.onSuspend.addListener(() => {
-  console.log("Unloading.");
-  cleanupWorker();
-});
 
 export {};

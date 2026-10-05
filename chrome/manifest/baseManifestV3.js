@@ -22,15 +22,16 @@ const autoplayMatches = ["translate.google.com"];
 
 module.exports = {
   ...commonManifest,
-  manifest_version: 2,
+  manifest_version: 3,
+  minimum_chrome_version: "116", // chrome.offscreen + chrome.runtime.getContexts
   background: {
-    scripts: ["background.js"],
-    persistent: false,
+    service_worker: "background.js",
   },
+  host_permissions: kindleCloudReaderMatches.map(makeUrl),
   options_ui: {
     page: "options.html",
   },
-  page_action: {
+  action: {
     default_icon: "img/book_16.png",
     default_popup: "options.html",
   },

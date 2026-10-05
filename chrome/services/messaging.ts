@@ -1,28 +1,45 @@
-import { Commands, IOcrInputData, IOcrOutputData } from "../const";
+import { Commands, IOcrInputData, IOcrOutputData, ITranslateEngine } from "../const";
 
-export interface IExtensionMountedMessage<ResponseType = boolean> {
-  command: Commands.EXTENSION_MOUNTED;
+// Messages sent by content scripts reach every extension context, including the offscreen
+// document. The service worker re-sends them with a `target`, and each context handles only
+// the messages addressed to it.
+export type MessageTarget = "offscreen" | "background";
+
+interface IRoutedMessage {
+  target?: MessageTarget;
+  // tab the message is about, filled in by the service worker
+  tabId?: number;
 }
-export interface IExtensionUnmountedMessage<ResponseType = boolean> {
+
+export interface IExtensionMountedMessage<ResponseType = boolean> extends IRoutedMessage {
+  command: Commands.EXTENSION_MOUNTED;
+  ocrLangs?: string;
+}
+export interface IExtensionUnmountedMessage<ResponseType = boolean> extends IRoutedMessage {
   command: Commands.EXTENSION_UNMOUNTED;
 }
-export interface ISettingsUpdatedMessage<ResponseType = boolean> {
+export interface ISettingsUpdatedMessage<ResponseType = boolean> extends IRoutedMessage {
   command: Commands.SETTINGS_UPDATED;
 }
-export interface IStartRecognitionMessage<ResponseType = IOcrOutputData> {
+export interface IStartRecognitionMessage<ResponseType = IOcrOutputData> extends IRoutedMessage {
   command: Commands.START_RECOGNITION;
   payload: IOcrInputData;
+  ocrLangs?: string;
 }
-export interface ISetProgressMessage<ResponseType = boolean> {
+export interface ISetProgressMessage<ResponseType = boolean> extends IRoutedMessage {
   command: Commands.SET_PROGRESS;
   payload: number;
+}
+export interface IGetSettingsMessage<ResponseType = ITranslateEngine> extends IRoutedMessage {
+  command: Commands.GET_SETTINGS;
 }
 export type Message =
   | IExtensionMountedMessage
   | IExtensionUnmountedMessage
   | ISettingsUpdatedMessage
   | IStartRecognitionMessage
-  | ISetProgressMessage;
+  | ISetProgressMessage
+  | IGetSettingsMessage;
 
 export class Messaging {
   async sendMessageToExtension<T>(message: Message): Promise<T> {

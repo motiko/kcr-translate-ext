@@ -6,8 +6,6 @@ function inject(fn) {
   document.body.removeChild(script); // clean up
 }
 
-chrome.runtime.sendMessage({ command: "ACTIVATE_PAGE_ACTION" });
-
 chrome.runtime.sendMessage({ command: "GET_SETTINGS" }, function (response) {
   if (response) {
     if (response && response.autoread) {
