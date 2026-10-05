@@ -25,11 +25,25 @@ const browser = await puppeteer.launch({
 });
 
 // Unpacked extensions are disabled while developer mode is off (e.g. on a fresh profile).
-async function ensureEnabled() {
+// The extensions page can reload while Canary starts up, so retry.
+async function ensureEnabled(attempts = 3) {
+  try {
+    return await enableOnce();
+  } catch (e) {
+    if (attempts <= 1) throw e;
+    await new Promise((r) => setTimeout(r, 2000));
+    return ensureEnabled(attempts - 1);
+  }
+}
+
+async function enableOnce() {
   const page = await browser.newPage();
   await page.goto("chrome://extensions");
   const result = await page.evaluate(async (dir) => {
-    await chrome.developerPrivate.updateProfileConfiguration({ inDeveloperMode: true });
+    const config = await chrome.developerPrivate.getProfileConfiguration();
+    if (!config.inDeveloperMode) {
+      await chrome.developerPrivate.updateProfileConfiguration({ inDeveloperMode: true });
+    }
     const exts = await chrome.developerPrivate.getExtensionsInfo();
     const ext = exts.find((e) => e.prettifiedPath === dir || e.path === dir) ?? exts.find((e) => e.location === "UNPACKED");
     if (!ext) return "extension not found";
