@@ -14,7 +14,8 @@ Package manager is yarn (`yarn.lock`).
 - `yarn build`: production build into `dist/` (cleans the folder first).
 - `yarn zip`: packages `dist/` into `pack.zip` for store upload.
 - `yarn test:cypress`: runs Cypress e2e in headed Chrome. **Build `dist/` first**, because Cypress loads the extension from `./dist`. The tests log in to a real Amazon account and are skipped unless `email`, `password` and `bookId` are set (in the gitignored `cypress.env.json` or as `CYPRESS_*` env vars). To run one spec: `npx cypress run --browser chrome --headed --spec cypress/integration/kcr.spec.ts`.
-- Lint/typecheck have no npm scripts: use `npx eslint chrome cypress --ext .ts,.tsx,.js` and `npx tsc --noEmit`. Prettier runs through ESLint (`prettier/prettier` is a warning).
+- `yarn lint` (ESLint on `chrome/` and `cypress/`) and `yarn typecheck` (`tsc --noEmit`). Prettier runs through ESLint (`prettier/prettier` is a warning). Only errors fail CI.
+- CI (`.github/workflows/ci.yml`) runs `typecheck`, `lint` and `build` on every PR and on pushes to `main`, and uploads `dist/` as the `kcr-translate-dist` artifact. Cypress is not run in CI.
 
 Babel (not `tsc`) compiles TS/TSX in webpack, so type errors do not break the build.
 
