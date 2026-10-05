@@ -1,5 +1,8 @@
 .agents/
-.claude/
+.claude/settings.local.json
+.claude/skills/chrome-extensions/
+.claude/skills/modern-web-guidance/
+CLAUDE.local.md
 .DS_Store
 pack.zip
 node_modules/
