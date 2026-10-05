@@ -1,4 +1,3 @@
-import { restoreDefaultSettings } from "./../../cypress/plugins/puppeteer";
 import Tesseract, { Worker } from "tesseract.js";
 import { IDimensions, IOcrOutputData } from "../const";
 
