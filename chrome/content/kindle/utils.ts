@@ -49,6 +49,34 @@ export const getAllSelectedTexts = (kindleElements: IKindleCenterElements): HTML
 
 export const strPxToFloat = (val: string): number => Number(val.replace("px", ""));
 
+// Tesseract expects dark text on a light background. KCR's dark themes render the page image
+// as light text on a dark background, and the pixels outside the selection are transparent.
+// Convert to grayscale, invert dark pages, and paint everything outside the selection white.
+function normalizeForOcr(ctx: CanvasRenderingContext2D, width: number, height: number) {
+  const imageData = ctx.getImageData(0, 0, width, height);
+  const { data } = imageData;
+  let lumaSum = 0;
+  let count = 0;
+  for (let i = 0; i < data.length; i += 4) {
+    const luma = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+    data[i] = luma;
+    if (data[i + 3] > 0) {
+      lumaSum += luma;
+      count++;
+    }
+  }
+  // the background dominates the selected area, so its average tells light from dark themes
+  const isDark = count > 0 && lumaSum / count < 128;
+  for (let i = 0; i < data.length; i += 4) {
+    const luma = isDark ? 255 - data[i] : data[i];
+    const alpha = data[i + 3] / 255;
+    const value = luma * alpha + 255 * (1 - alpha);
+    data[i] = data[i + 1] = data[i + 2] = value;
+    data[i + 3] = 255;
+  }
+  ctx.putImageData(imageData, 0, 0);
+}
+
 export function transformSelected(
   { kindleContentArea }: IKindleCenterElements,
   selectedAreas: HTMLSpanElement[] = []
@@ -97,6 +125,7 @@ export function transformSelected(
   });
   ctx.clip(region);
   ctx.drawImage(pageImage, 0, 0, pageImage.clientWidth, pageImage.clientHeight);
+  normalizeForOcr(ctx, canvas.width, canvas.height);
   const dataUrl = canvas.toDataURL();
   // console.debug(dataUrl);
   return {
