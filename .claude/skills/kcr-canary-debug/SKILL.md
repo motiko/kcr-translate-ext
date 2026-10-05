@@ -45,8 +45,14 @@ extensions, so the scripts print the install command if it's missing.
      before `normalizeForOcr`. Use it as an OCR fixture or to inspect what Tesseract gets.
    - `settings ['{"ocrLangs":"deu"}']`: print or merge `chrome.storage.sync`. Empty `{}` means defaults
      (`ocrLangs: "eng"`).
-   - `eval '<js expression>'`, `close-popups` (the Google Translate popup opens as a new tab and lands on
-     Google sign-in in this profile; that's expected)
+   - `eval '<js expression>'`, `close-popups` (the Google Translate popup opens as a new tab)
+
+Google Translate works without a Google account. A fresh profile first shows Google's cookie consent
+page, which the user accepts once. Google refuses sign-in while the browser is automated ("This browser
+or app may not be secure"). If a Google login is really needed, the user signs in once with Canary
+started on the debug profile without automation (`open -na "Google Chrome Canary" --args
+--user-data-dir="$HOME/.kcr-debug/canary-profile"`, with the automated instance closed). Don't hide the
+automation flags to get around this.
 4. After a code change: `yarn build`, wait about 3s for the "reinstalled" line in the launch output,
    then test again.
 5. Stop: stop the background launch task, or `pkill -f "Chrome Canary.*kcr-debug/canary-profile"`.
