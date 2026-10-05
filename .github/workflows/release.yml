@@ -1,0 +1,40 @@
+name: Release
+
+# Runs when a version tag is pushed: `yarn version --patch|--minor|--major` bumps package.json,
+# commits and tags vX.Y.Z; then `git push --follow-tags`.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      CYPRESS_INSTALL_BINARY: 0
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: yarn
+      - name: Check that the tag matches package.json
+        run: |
+          version=$(node -p "require('./package.json').version")
+          if [ "$GITHUB_REF_NAME" != "v$version" ]; then
+            echo "::error::tag $GITHUB_REF_NAME doesn't match package.json version $version"
+            exit 1
+          fi
+      - run: yarn install --frozen-lockfile
+      - run: yarn typecheck
+      - run: yarn lint
+      - run: yarn build
+      - run: yarn zip
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mv pack.zip "kcr-translate-$GITHUB_REF_NAME.zip"
+          gh release create "$GITHUB_REF_NAME" "kcr-translate-$GITHUB_REF_NAME.zip" --generate-notes

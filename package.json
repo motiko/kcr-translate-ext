@@ -49,7 +49,7 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint chrome cypress --ext .ts,.tsx,.js",
     "test:cypress": "cypress run --browser chrome --headed",
-    "zip": "zip pack.zip dist -r"
+    "zip": "rm -f pack.zip && cd dist && zip -r ../pack.zip ."
   },
   "repository": {
     "type": "git",

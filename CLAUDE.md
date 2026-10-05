@@ -12,10 +12,11 @@ Package manager is yarn (`yarn.lock`).
 
 - `yarn dev`: webpack watch build into `dist/` with `webpack-ext-reloader` (port 9090), which auto-reloads the extension and the KCR page on change. Load `dist/` as an unpacked extension in Chrome.
 - `yarn build`: production build into `dist/` (cleans the folder first).
-- `yarn zip`: packages `dist/` into `pack.zip` for store upload.
+- `yarn zip`: packages the contents of `dist/` into `pack.zip` (with `manifest.json` at the zip root) for store upload.
+- Release: `yarn version --patch|--minor|--major` bumps `package.json`, commits and tags `vX.Y.Z`; `git push --follow-tags` triggers `.github/workflows/release.yml`, which checks that the tag matches `package.json`, builds, and attaches `kcr-translate-vX.Y.Z.zip` to a GitHub release. Uploading to the Chrome Web Store is still manual.
 - `yarn test:cypress`: runs Cypress e2e in headed Chrome. **Build `dist/` first**, because Cypress loads the extension from `./dist`. The tests log in to a real Amazon account and are skipped unless `email`, `password` and `bookId` are set (in the gitignored `cypress.env.json` or as `CYPRESS_*` env vars). To run one spec: `npx cypress run --browser chrome --headed --spec cypress/integration/kcr.spec.ts`.
 - `yarn lint` (ESLint on `chrome/` and `cypress/`) and `yarn typecheck` (`tsc --noEmit`). Prettier runs through ESLint (`prettier/prettier` is a warning). Only errors fail CI.
-- CI (`.github/workflows/ci.yml`) runs `typecheck`, `lint` and `build` on every PR and on pushes to `main`, and uploads `dist/` as the `kcr-translate-dist` artifact. Cypress is not run in CI.
+- CI (`.github/workflows/ci.yml`) runs `typecheck`, `lint` and `build` on every PR and on pushes to `main`, and uploads `dist/` as the `kcr-translate-dist` artifact. Cypress is not run in CI. Dependabot (`.github/dependabot.yml`) opens grouped monthly PRs for npm and GitHub Actions; major updates of tesseract.js are ignored.
 
 Babel (not `tsc`) compiles TS/TSX in webpack, so type errors do not break the build.
 
@@ -46,7 +47,7 @@ The content script depends on KCR's DOM class names and IDs (`kg-client-dictiona
 
 ### Manifest
 
-The manifest is generated at build time by `webpack-extension-manifest-plugin`: `baseManifestV3.js` spreads `manifest.json` and adds the service worker, action, `host_permissions` and content scripts, and `version`/`description` come from `package.json`. Bump the version in `package.json`. Tesseract's `worker.min.js` and `tesseract-core.asm.js` are copied from `node_modules` into `dist/lib/tesseract/` and loaded by the offscreen document with `chrome.runtime.getURL`. tesseract.js stays on 2.1.5 with the asm.js core. Switching to the wasm core (e.g. tesseract.js v5) requires adding `'wasm-unsafe-eval'` to `content_security_policy.extension_pages`.
+The manifest is generated at build time by `webpack-extension-manifest-plugin`: `baseManifestV3.js` spreads `manifest.json` and adds the service worker, action, `host_permissions` and content scripts, and `version`/`description` come from `package.json`. Bump the version with `yarn version` (see Release above). Tesseract's `worker.min.js` and `tesseract-core.asm.js` are copied from `node_modules` into `dist/lib/tesseract/` and loaded by the offscreen document with `chrome.runtime.getURL`. tesseract.js stays on 2.1.5 with the asm.js core. Switching to the wasm core (e.g. tesseract.js v5) requires adding `'wasm-unsafe-eval'` to `content_security_policy.extension_pages`.
 
 ### E2E tests
 

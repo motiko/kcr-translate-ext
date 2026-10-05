@@ -1,0 +1,27 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      # one PR for all minor/patch updates, so the PRs don't conflict in yarn.lock
+      minor-and-patch:
+        update-types: [minor, patch]
+      major:
+        update-types: [major]
+      security:
+        applies-to: security-updates
+        patterns: ["*"]
+    ignore:
+      # tesseract.js stays on 2.x with the asm.js core (v5 needs the wasm core and a CSP change)
+      - dependency-name: tesseract.js
+        update-types: [version-update:semver-major]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      actions:
+        patterns: ["*"]
