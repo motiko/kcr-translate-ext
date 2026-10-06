@@ -13,12 +13,22 @@ Package manager is yarn (`yarn.lock`).
 - `yarn dev`: webpack watch build into `dist/` with `webpack-ext-reloader` (port 9090), which auto-reloads the extension and the KCR page on change. Load `dist/` as an unpacked extension in Chrome.
 - `yarn build`: production build into `dist/` (cleans the folder first).
 - `yarn zip`: packages the contents of `dist/` into `pack.zip` (with `manifest.json` at the zip root) for store upload.
-- Release: `yarn version --patch|--minor|--major` bumps `package.json`, commits and tags `vX.Y.Z`; `git push --follow-tags` triggers `.github/workflows/release.yml`, which checks that the tag matches `package.json`, builds, and attaches `kcr-translate-vX.Y.Z.zip` to a GitHub release. Uploading to the Chrome Web Store is still manual.
 - `yarn test:cypress`: runs Cypress e2e in headed Chrome. **Build `dist/` first**, because Cypress loads the extension from `./dist`. The tests log in to a real Amazon account and are skipped unless `email`, `password` and `bookId` are set (in the gitignored `cypress.env.json` or as `CYPRESS_*` env vars). To run one spec: `npx cypress run --browser chrome --headed --spec cypress/integration/kcr.spec.ts`.
 - `yarn lint` (ESLint on `chrome/` and `cypress/`) and `yarn typecheck` (`tsc --noEmit`). Prettier runs through ESLint (`prettier/prettier` is a warning). Only errors fail CI.
 - CI (`.github/workflows/ci.yml`) runs `typecheck`, `lint` and `build` on every PR and on pushes to `main`, and uploads `dist/` as the `kcr-translate-dist` artifact. Cypress is not run in CI. Dependabot (`.github/dependabot.yml`) opens grouped monthly PRs for npm and GitHub Actions; major updates of tesseract.js are ignored.
 
 Babel (not `tsc`) compiles TS/TSX in webpack, so type errors do not break the build.
+
+## Releasing
+
+The user-facing process and the one-time Google Cloud setup are in the "Releasing" section of `README.md`. Summary:
+
+- `yarn version --patch|--minor|--major` bumps `package.json`, commits and tags `vX.Y.Z`. `git push --follow-tags` triggers `.github/workflows/release.yml`: tag/version check, `typecheck`, `lint`, `build`, `yarn zip`, then a GitHub release with `kcr-translate-vX.Y.Z.zip` attached.
+- release.yml then calls `.github/workflows/publish-chrome-web-store.yml`, which uploads that zip with the Chrome Web Store API v2 and submits it for review (`publishType: DEFAULT_PUBLISH`, so it goes live when approved).
+- Auth is keyless: GitHub OIDC is exchanged through Workload Identity Federation for the `cws-publisher` service account, which is registered in the CWS dashboard. Configuration lives in repository variables (`CWS_PUBLISHER_ID`, `CWS_EXTENSION_ID`, `GCP_WORKLOAD_IDENTITY_PROVIDER`, `GCP_SERVICE_ACCOUNT`), not secrets. Without them the publish job is skipped with a warning.
+- The store rejects an upload while the previous version is in review. The GitHub release still exists, so retry later with `gh workflow run publish-chrome-web-store.yml -f tag=vX.Y.Z`. `-f check_only=true` tests auth and configuration and uploads nothing.
+
+For agents: a pushed tag publishes to real users after review, so never run `yarn version`, push a tag or dispatch the publish workflow (except with `check_only=true`) unless the user explicitly asks for a release. Before a release, verify the `yarn build` output in KCR (e.g. with the `kcr-canary-debug` skill).
 
 ## Architecture
 

@@ -38,3 +38,12 @@ jobs:
         run: |
           mv pack.zip "kcr-translate-$GITHUB_REF_NAME.zip"
           gh release create "$GITHUB_REF_NAME" "kcr-translate-$GITHUB_REF_NAME.zip" --generate-notes
+
+  chrome-web-store:
+    needs: release
+    uses: ./.github/workflows/publish-chrome-web-store.yml
+    with:
+      tag: ${{ github.ref_name }}
+    permissions:
+      contents: read
+      id-token: write
