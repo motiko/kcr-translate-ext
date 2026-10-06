@@ -103,6 +103,133 @@ export const tesseractLangs = {
   yid: "Yiddish",
 };
 
+// used when the book language is unknown or has no tesseract model
+export const FALLBACK_OCR_LANG = "eng";
+
+// BCP 47 primary language subtag (as KCR reports the book language) -> tesseract language code
+const isoToTesseractLangs: Record<string, string> = {
+  af: "afr",
+  am: "amh",
+  ar: "ara",
+  as: "asm",
+  az: "aze",
+  be: "bel",
+  bg: "bul",
+  bn: "ben",
+  bo: "bod",
+  bs: "bos",
+  ca: "cat",
+  cs: "ces",
+  cy: "cym",
+  da: "dan",
+  de: "deu",
+  dz: "dzo",
+  el: "ell",
+  en: "eng",
+  eo: "epo",
+  es: "spa",
+  et: "est",
+  eu: "eus",
+  fa: "fas",
+  fi: "fin",
+  fil: "tgl",
+  fr: "fra",
+  ga: "gle",
+  gl: "glg",
+  gu: "guj",
+  he: "heb",
+  hi: "hin",
+  hr: "hrv",
+  ht: "hat",
+  hu: "hun",
+  id: "ind",
+  in: "ind",
+  is: "isl",
+  it: "ita",
+  iu: "iku",
+  iw: "heb",
+  ja: "jpn",
+  ji: "yid",
+  jv: "jav",
+  ka: "kat",
+  kk: "kaz",
+  km: "khm",
+  kn: "kan",
+  ko: "kor",
+  ku: "kur",
+  ky: "kir",
+  la: "lat",
+  lo: "lao",
+  lt: "lit",
+  lv: "lav",
+  mk: "mkd",
+  ml: "mal",
+  mr: "mar",
+  ms: "msa",
+  mt: "mlt",
+  my: "mya",
+  nb: "nor",
+  ne: "nep",
+  nl: "nld",
+  nn: "nor",
+  no: "nor",
+  or: "ori",
+  pa: "pan",
+  pl: "pol",
+  ps: "pus",
+  pt: "por",
+  ro: "ron",
+  ru: "rus",
+  sa: "san",
+  si: "sin",
+  sk: "slk",
+  sl: "slv",
+  sq: "sqi",
+  sr: "srp",
+  sv: "swe",
+  sw: "swa",
+  ta: "tam",
+  te: "tel",
+  tg: "tgk",
+  th: "tha",
+  ti: "tir",
+  tl: "tgl",
+  tr: "tur",
+  ug: "uig",
+  uk: "ukr",
+  ur: "urd",
+  uz: "uzb",
+  vi: "vie",
+  yi: "yid",
+};
+
+// Maps a book language such as "de", "pt-BR" or "zh-Hant" to a tesseract language code,
+// or undefined when there is no model for it.
+export const bookLangToTesseract = (bookLang?: string | null): string | undefined => {
+  if (!bookLang) {
+    return undefined;
+  }
+  const [primary, ...subtags] = bookLang.toLowerCase().split(/[-_]/);
+  if (primary === "zh") {
+    return subtags.some((s) => ["hant", "tw", "hk", "mo"].includes(s)) ? "chi_tra" : "chi_sim";
+  }
+  if (primary === "sr" && subtags.includes("latn")) {
+    return "srp_latn";
+  }
+  if (primary in isoToTesseractLangs) {
+    return isoToTesseractLangs[primary];
+  }
+  // some books already use a three-letter code
+  return primary in tesseractLangs ? primary : undefined;
+};
+
+// What tesseract should load for a book language.
+export const ocrLangsForBook = (bookLang?: string | null): string =>
+  bookLangToTesseract(bookLang) ?? FALLBACK_OCR_LANG;
+
+// Set on <html> by the bookLang content script (MAIN world) when KCR loads a book.
+export const bookLangDataKey = "kcrtBookLang";
+
 export enum Commands {
   SETTINGS_UPDATED = "SETTINGS_UPDATED",
   EXTENSION_MOUNTED = "ACTIVATE_PAGE_ACTION",

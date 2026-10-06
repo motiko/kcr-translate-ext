@@ -14,6 +14,7 @@ module.exports = {
   entry: {
     autoplay: path.join(inputDir, "content", "autoplay.js"),
     index: path.join(inputDir, "content", "kindle"),
+    bookLang: path.join(inputDir, "content", "bookLang.ts"),
     options: path.join(inputDir, "options"),
     background: path.join(inputDir, "background", "background.ts"),
     offscreen: path.join(inputDir, "offscreen", "offscreen.ts"),

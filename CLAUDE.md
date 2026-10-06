@@ -33,12 +33,13 @@ For agents: a pushed tag publishes to real users after review, so never run `yar
 
 ## Architecture
 
-Five webpack entry points under `chrome/`, each emitted as `dist/<name>.js`:
+Six webpack entry points under `chrome/`, each emitted as `dist/<name>.js`:
 
 - **`index`** (`content/kindle/`): the main content script. It is injected with `all_frames: true` into every KCR domain listed in `chrome/manifest/baseManifestV3.js`. It runs inside the KCR book iframe but mounts its React root into the **parent** document (`#kindleContentScript`). `waitForKindleCenter()` polls for the KCR DOM and returns `kindleElements` (iframe document and content area), which is then passed everywhere.
-- **`background`** (`background/background.ts`): the MV3 service worker. Chrome terminates it when idle, so it keeps no state. It routes messages: it creates the offscreen document on demand (`ensureOffscreenDocument`), forwards OCR requests there along with the tab ID and the current `ocrLangs`, and relays `SET_PROGRESS` back to the tab with `chrome.tabs.sendMessage`.
+- **`background`** (`background/background.ts`): the MV3 service worker. Chrome terminates it when idle, so it keeps no state. It routes messages: it creates the offscreen document on demand (`ensureOffscreenDocument`), forwards OCR requests there along with the tab ID and the `ocrLangs` the content script picked for the open book (`eng` when a message has none), and relays `SET_PROGRESS` back to the tab with `chrome.tabs.sendMessage`.
 - **`offscreen`** (`offscreen/`): an offscreen document (reason `WORKERS`) that owns the single tesseract worker. A service worker can't spawn web workers. Only one OCR request runs at a time (`lock`), and a new request cancels the previous one by terminating the worker. The worker is recreated when `ocrLangs` changes and terminated after 5 idle minutes. Offscreen documents only have `chrome.runtime`, so they can't read `chrome.storage` or message tabs; anything that needs those goes through the service worker.
-- **`options`** (`options/`): a React options page, also used as the page-action popup. It writes settings to `chrome.storage.sync`.
+- **`bookLang`** (`content/bookLang.ts`): a content script in the page's MAIN world at `document_start`. KCR doesn't expose the book language in the DOM, and its APIs need tokens only KCR has, so this script wraps `window.fetch`, reads `"lang":"de"` from the book metadata inside KCR's own `/renderer/render` responses (a TAR archive), and stores it in `document.documentElement.dataset.kcrtBookLang`. The isolated-world content script reads that attribute.
+- **`options`** (`options/`): a React options page, also used as the toolbar popup (keep it usable at its 380px minimum width). It writes settings to `chrome.storage.sync`. It uses plain CSS with light/dark tokens in `options.css`, and no CSS framework.
 - **`autoplay`** (`content/autoplay.js`): a content script on translate.google.com that auto-clicks text-to-speech when the selected engine has `autoread` enabled.
 
 ### Content script flow
@@ -52,7 +53,7 @@ The content script depends on KCR's DOM class names and IDs (`kg-client-dictiona
 
 ### Shared code
 
-- `chrome/const.ts`: `Commands` (message types), `Engines`, the default engine list, tesseract language codes, and the fixed `chromeExtensionId`. That ID comes from the `key` in `manifest/manifest.json`, and the Cypress puppeteer helpers use it to open the options page.
+- `chrome/const.ts`: `Commands` (message types), `Engines`, the default engine list, tesseract language codes, the book-language → tesseract mapping (`ocrLangsForBook`, which falls back to `eng`; the OCR language is not a user setting), and the fixed `chromeExtensionId`. That ID comes from the `key` in `manifest/manifest.json`, and the Cypress puppeteer helpers use it to open the options page.
 - `chrome/services/messaging.ts`: typed `Message` union plus promise wrappers around `chrome.runtime.sendMessage` / `chrome.tabs.sendMessage`. Add new message types here and to `Commands`. A runtime message from a content script reaches **every** extension context, including the offscreen document. Messages between the service worker and the offscreen document therefore carry `target: "offscreen" | "background"`. Each `onMessage` listener must ignore messages that aren't addressed to it, and return `true` only for messages it answers asynchronously; otherwise it can swallow another context's response.
 - `chrome/services/settings.ts`: the `chrome.storage.sync` wrapper. Every write broadcasts `SETTINGS_UPDATED`, and the service worker reacts by re-injecting `index.js` into the active tab with `chrome.scripting`. This works only on KCR tabs, which are the only ones covered by `host_permissions`.
 

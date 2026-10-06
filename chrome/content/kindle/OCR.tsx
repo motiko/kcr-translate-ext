@@ -1,18 +1,20 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import Progress from "./Progress";
 import { ContentContext } from "./ContentContext";
-import { getAllTexts, transformSelected, TranslationStatus } from "./utils";
+import { getAllTexts, getOcrLangs, transformSelected, TranslationStatus } from "./utils";
 import { Commands, IOcrInputData, IOcrOutputData } from "../../const";
 import { Message, Messaging } from "../../services/messaging";
 import MessageSender = chrome.runtime.MessageSender;
 
 async function recognizeText(
   messagingService: Messaging,
-  data: IOcrInputData
+  data: IOcrInputData,
+  ocrLangs: string
 ): Promise<IOcrOutputData> {
   return messagingService.sendMessageToExtension({
     command: Commands.START_RECOGNITION,
     payload: data,
+    ocrLangs,
   });
 }
 
@@ -60,7 +62,7 @@ export const OCR: React.FC = () => {
       }
       const data = transformSelected(kindleElements, areas);
       if (data) {
-        recognizeText(messagingService, data)
+        recognizeText(messagingService, data, getOcrLangs())
           .then(({ error, text }) => {
             console.log("recognition error:", error);
             setError(error);

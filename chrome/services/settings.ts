@@ -1,7 +1,6 @@
 import { Commands, defaultTranslateEngines, ITranslateEngine } from '../const'
 
 interface IStorageObjects {
-  readonly ocrLangs: string;
   readonly translateEngines: ITranslateEngine[];
   readonly translationEnabled: boolean;
 }
@@ -9,13 +8,11 @@ interface IStorageObjects {
 export type TSettings = IStorageObjects & { selectedEngine: ITranslateEngine };
 
 export class Settings {
-  private ocrLangsKey = "ocrLangs";
   private translateEnginesKey = "translateEngines";
   private translationEnabledKey = "translationEnabled";
 
   static defaults: IStorageObjects = {
     translateEngines: defaultTranslateEngines as ITranslateEngine[],
-    ocrLangs: "eng",
     translationEnabled: true,
   };
 
@@ -25,7 +22,6 @@ export class Settings {
     return {
       translateEngines,
       translationEnabled: await this.getTranslationEnabled(),
-      ocrLangs: await this.getOcrLangs(),
       selectedEngine,
     };
   }
@@ -45,17 +41,6 @@ export class Settings {
         this.translationEnabledKey,
         ({ translationEnabled = Settings.defaults.translationEnabled }) => {
           resolve(translationEnabled);
-        }
-      );
-    });
-  }
-
-  getOcrLangs(): Promise<string> {
-    return new Promise<string>((resolve) => {
-      chrome.storage.sync.get(
-        this.ocrLangsKey,
-        ({ ocrLangs = Settings.defaults.ocrLangs }) => {
-          resolve(ocrLangs);
         }
       );
     });
@@ -81,15 +66,11 @@ export class Settings {
     });
   }
 
-  async updateValues(
-    engines: ITranslateEngine[],
-    ocrLangs: string
-  ): Promise<void> {
+  async updateValues(engines: ITranslateEngine[]): Promise<void> {
     return new Promise<void>((resolve) => {
       chrome.storage.sync.set(
         {
           translateEngines: engines,
-          ocrLangs,
         },
         () => {
           chrome.runtime.sendMessage({ command: Commands.SETTINGS_UPDATED });

@@ -1,4 +1,4 @@
-import { detectedTextContainerId, getAllSelectedTexts, isKindleText } from "../utils";
+import { detectedTextContainerId, getAllSelectedTexts, getOcrLangs, isKindleText } from "../utils";
 import React, { useCallback, useEffect, useReducer } from "react";
 import { Commands, Engines } from "../../../const";
 import { observePageEvents } from "./utils";
@@ -93,7 +93,10 @@ export const KindleCloudReaderListener: React.FC<IKindleCloudReaderListenerProps
     kindleContentArea.addEventListener("mouseup", onMouseUp, listenersOptions);
     kindleContentArea.addEventListener("dblclick", onDoubleClick, listenersOptions);
     kindleIframeDocument.addEventListener("mousedown", onMouseDown, listenersOptions);
-    void messagingService.sendMessageToExtension({ command: Commands.EXTENSION_MOUNTED });
+    void messagingService.sendMessageToExtension({
+      command: Commands.EXTENSION_MOUNTED,
+      ocrLangs: getOcrLangs(),
+    });
     return () => {
       console.log("removeListeners");
       kindleContentArea.removeEventListener("mouseup", onMouseUp, listenersOptions);

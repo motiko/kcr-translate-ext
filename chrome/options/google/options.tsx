@@ -1,11 +1,7 @@
 import { Engines, IEngineOptionsProps } from "../../const";
 import React, { ChangeEventHandler } from "react";
-import {
-  getLanguagesFromGoogleUrl,
-  google_languages,
-  IGoogleLanguage,
-} from "./languages";
-import { showMessage } from "../utils";
+import { getLanguagesFromGoogleUrl, google_languages, IGoogleLanguage } from "./languages";
+import { Field, Switch } from "../components";
 
 interface IGoogleTranslateLanguageSelectProps {
   value: string;
@@ -25,12 +21,10 @@ const GoogleTranslateLanguageSelect = ({
 }: IGoogleTranslateLanguageSelectProps) => {
   const selectId = `translate_${type}`;
   const onChange: ChangeEventHandler<HTMLSelectElement> = (event) => {
-    const languageCode = event.target.value;
-    onLanguageChange(type, languageCode);
+    onLanguageChange(type, event.target.value);
   };
   return (
-    <>
-      <label htmlFor={selectId}>Translate {type}</label>
+    <Field label={type === "from" ? "From" : "To"} htmlFor={selectId}>
       <select id={selectId} value={value} onChange={onChange}>
         {[...google_languages, customLanguage].map((lang) => (
           <option
@@ -42,7 +36,7 @@ const GoogleTranslateLanguageSelect = ({
           </option>
         ))}
       </select>
-    </>
+    </Field>
   );
 };
 
@@ -64,9 +58,9 @@ export const GoogleTranslateEngineOptions = ({
     const prevUrl = selectedEngineUrl;
     let newUrl: string;
     if (type === "to") {
-      newUrl = prevUrl.replace(/(#\w+\/)\w+\//, `$1${langCode}/`);
+      newUrl = prevUrl.replace(/(#[\w-]+\/)[\w-]+\//, `$1${langCode}/`);
     } else {
-      newUrl = prevUrl.replace(/#\w+\//, `#${langCode}/`);
+      newUrl = prevUrl.replace(/#[\w-]+\//, `#${langCode}/`);
     }
     onEngineUpdate({
       ...selectedEngine,
@@ -74,58 +68,57 @@ export const GoogleTranslateEngineOptions = ({
     });
   };
   let from, to;
+  let urlError = false;
   try {
     const languages = getLanguagesFromGoogleUrl(selectedEngineUrl);
     from = languages.from;
     to = languages.to;
   } catch (e) {
-    console.log(`Error: ${(e as Error).message}`);
-    showMessage("error_message");
+    urlError = true;
     from = to = customLanguage.language_code;
   }
   return (
     <div id="google_lang_controls">
-      <GoogleTranslateLanguageSelect
-        type="from"
-        value={from}
-        onLanguageChange={onLanguageChange}
-      />
-      <GoogleTranslateLanguageSelect
-        type="to"
-        value={to}
-        onLanguageChange={onLanguageChange}
-      />
-      <div>
-        <input
-          type="checkbox"
-          id="auto_read"
-          checked={autoread}
-          onChange={onAutoreadChange}
+      <div className="field-row">
+        <GoogleTranslateLanguageSelect
+          type="from"
+          value={from}
+          onLanguageChange={onLanguageChange}
         />
-        <label htmlFor="auto_read">Autoread</label>
+        <GoogleTranslateLanguageSelect type="to" value={to} onLanguageChange={onLanguageChange} />
       </div>
+      {urlError && (
+        <p className="hint error">
+          The URL uses languages that aren&apos;t in this list. Restore defaults to choose them here
+          again.
+        </p>
+      )}
+      <Switch
+        id="auto_read"
+        label="Read the translation aloud"
+        checked={!!autoread}
+        onChange={onAutoreadChange}
+      />
     </div>
   );
 };
 
-export const GoogleTranslateExtEngineOptions = ({
-  selectedEngine,
-}: IEngineOptionsProps) => {
+export const GoogleTranslateExtEngineOptions = ({ selectedEngine }: IEngineOptionsProps) => {
   const { name } = selectedEngine;
   if (name !== Engines.GOOGLE_TRANSLATE_EXT) {
     return null;
   }
   return (
-    <label>
-      Please note that in order to use this engine you need to install{" "}
+    <p className="note">
+      Requires the{" "}
       <a
         target="_blank"
         rel="noreferrer"
         href="https://chrome.google.com/webstore/detail/google-translate/aapbdbdomjkkjkaonfhkkikfgjllcleb?hl=en"
       >
-        Google Translate
-      </a>{" "}
-      extension
-    </label>
+        Google Translate extension
+      </a>
+      . Translating the whole page with it shows the recognized text in place of the page.
+    </p>
   );
 };

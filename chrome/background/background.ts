@@ -1,5 +1,5 @@
 import MessageSender = chrome.runtime.MessageSender;
-import { Commands, IOcrOutputData } from "../const";
+import { Commands, FALLBACK_OCR_LANG, IOcrOutputData } from "../const";
 import { Settings } from "../services/settings";
 import { Message, Messaging } from "../services/messaging";
 
@@ -72,7 +72,7 @@ const requestListener = (
     // init worker
     (async () => {
       try {
-        const ocrLangs = await settingsService.getOcrLangs();
+        const ocrLangs = request.ocrLangs ?? FALLBACK_OCR_LANG;
         sendResponse(await sendToOffscreen({ command: Commands.EXTENSION_MOUNTED, ocrLangs }));
       } catch (e) {
         sendResponse(false);
@@ -108,7 +108,8 @@ const requestListener = (
         if (!tabId) {
           throw new Error("recognition requested outside of a tab");
         }
-        const ocrLangs = await settingsService.getOcrLangs();
+        // the content script picks the language of the open book
+        const ocrLangs = request.ocrLangs ?? FALLBACK_OCR_LANG;
         result = await sendToOffscreen<IOcrOutputData>({
           command: Commands.START_RECOGNITION,
           payload: request.payload,

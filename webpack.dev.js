@@ -12,7 +12,7 @@ module.exports = {
       port: 9090,
       reloadPage: true,
       entries: {
-        contentScript: ["autoplay", "index"],
+        contentScript: ["autoplay", "index", "bookLang"],
         background: "background",
         extensionPage: ["options", "offscreen"],
       },

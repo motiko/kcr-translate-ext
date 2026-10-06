@@ -36,11 +36,12 @@ export const setExtensionSettings = async (settings: ISettingsPuppeteer): Promis
   const optionsWindow = await switchToOptionsWindow();
   // translationEnabled
   if ("boolean" === typeof settings.translationEnabled) {
-    const enableBtn = await optionsWindow.$("[data-cy=kcrt-options-toggle-translation]");
-    const enableBtnText = await enableBtn?.evaluate((e) => e.textContent);
-    const currentTranslationEnabled = enableBtnText !== "Enable Translation";
+    const enableSwitch = await optionsWindow.$("[data-cy=kcrt-options-toggle-translation]");
+    const currentTranslationEnabled = await enableSwitch?.evaluate(
+      (e) => (e as HTMLInputElement).checked
+    );
     if (currentTranslationEnabled !== settings.translationEnabled) {
-      await enableBtn?.click();
+      await enableSwitch?.click();
     }
   }
   // engine

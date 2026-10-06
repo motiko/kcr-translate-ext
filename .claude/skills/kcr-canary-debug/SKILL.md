@@ -43,8 +43,9 @@ extensions, so the scripts print the install command if it's missing.
      text (`#kcr-selection`) and error. The result span is cleared first, so a result is never stale.
    - `capture <file>`: the selection clipped from the page image like `transformSelected` does,
      before `normalizeForOcr`. Use it as an OCR fixture or to inspect what Tesseract gets.
-   - `settings ['{"ocrLangs":"deu"}']`: print or merge `chrome.storage.sync`. Empty `{}` means defaults
-     (`ocrLangs: "eng"`).
+   - `settings ['{"translationEnabled":false}']`: print or merge `chrome.storage.sync`. Empty `{}` means
+     defaults. The OCR language isn't a setting: it comes from the book (`eval
+     'document.documentElement.dataset.kcrtBookLang'`), with `eng` as the fallback.
    - `eval '<js expression>'`, `close-popups` (the Google Translate popup opens as a new tab)
 
 Google Translate works without a Google account. A fresh profile first shows Google's cookie consent
@@ -62,7 +63,7 @@ Put screenshots and captures in the scratchpad, not the repo.
 
 ## Running OCR outside the browser
 
-To check Tesseract on a captured image (for example to compare `ocrLangs`), run tesseract.js 2.x from
+To check Tesseract on a captured image (for example to compare OCR languages), run tesseract.js 2.x from
 `node_modules` in node. Preload `nofetch.cjs` through `NODE_OPTIONS`, so the forked worker gets it too:
 
 ```sh
@@ -75,5 +76,5 @@ apply the same pixel steps as `normalizeForOcr` in `chrome/content/kindle/utils.
 dark pages, transparent to white) to the decoded PNG first (e.g. with `pngjs` in the scratchpad),
 then `worker.recognize(buffer)`.
 
-Wrong characters often mean the OCR language doesn't match the book. Check `ocrLangs` before suspecting
-the image pipeline: `eng` turns "ö" into "é", and `eng+deu` behaves like `eng`.
+Wrong characters often mean the OCR language doesn't match the book. Check the detected book language
+(`kcrtBookLang` above; missing means `eng`) before suspecting the image pipeline: `eng` turns "ö" into "é", and `eng+deu` behaves like `eng`.
