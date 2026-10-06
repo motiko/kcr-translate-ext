@@ -75,7 +75,7 @@ export function getLanguagesFromGoogleUrl(url: string): {
   from: string;
   to: string;
 } {
-  const parsedUrl = url.match(/#(\w+)\/(\w+)\//);
+  const parsedUrl = url.match(/#([\w-]+)\/([\w-]+)\//);
   if (!parsedUrl) {
     throw new Error(`Could not parse google url: ${url}`);
   }

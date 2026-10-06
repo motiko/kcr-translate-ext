@@ -1,10 +1,8 @@
 import { Engines, IEngineOptionsProps } from "../../const";
 import React, { ChangeEventHandler } from "react";
+import { Field } from "../components";
 
-export const DictCCEngineOptions = ({
-  selectedEngine,
-  onEngineUpdate,
-}: IEngineOptionsProps) => {
+export const DictCCEngineOptions = ({ selectedEngine, onEngineUpdate }: IEngineOptionsProps) => {
   const { url: selectedEngineUrl, name } = selectedEngine;
   if (name !== Engines.DICT_CC) {
     return null;
@@ -19,13 +17,8 @@ export const DictCCEngineOptions = ({
   };
   const match = selectedEngineUrl.match(/:\/\/([a-zA-z-]+)\.pocket/);
   return (
-    <div id="dictcc_lang_controls">
-      <label htmlFor="dict_cc_dictionaries">Dictionary</label>
-      <select
-        id="dict_cc_dictionaries"
-        value={match?.[1]}
-        onChange={onDictChange}
-      >
+    <Field label="Dictionary" htmlFor="dict_cc_dictionaries">
+      <select id="dict_cc_dictionaries" value={match?.[1] ?? "deen"} onChange={onDictChange}>
         <option value="deen">DE &lt;&gt; EN</option>
         <option value="de-en">DE –&gt; EN</option>
         <option value="en-de">EN –&gt; DE</option>
@@ -84,6 +77,6 @@ export const DictCCEngineOptions = ({
         <option value="ensv">EN &lt;&gt; SV</option>
         <option value="entr">EN &lt;&gt; TR</option>
       </select>
-    </div>
+    </Field>
   );
 };

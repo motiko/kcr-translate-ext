@@ -1,7 +1,6 @@
 import { Worker } from "tesseract.js";
-import { Commands, IOcrOutputData } from "../const";
+import { Commands, FALLBACK_OCR_LANG, IOcrOutputData } from "../const";
 import { doOCR, initWorker } from "./ocr";
-import { Settings } from "../services/settings";
 import { IStartRecognitionMessage, Message, Messaging } from "../services/messaging";
 
 // The MV3 service worker can't spawn web workers, so the tesseract worker lives here.
@@ -83,7 +82,7 @@ const resetIdleTimer = () => {
 const startRecognition = async ({
   payload,
   tabId,
-  ocrLangs = Settings.defaults.ocrLangs,
+  ocrLangs = FALLBACK_OCR_LANG,
 }: IStartRecognitionMessage): Promise<IOcrOutputData> => {
   if (lock) {
     // cancel previous request
@@ -126,7 +125,7 @@ chrome.runtime.onMessage.addListener(
       (async () => {
         resetIdleTimer();
         try {
-          await getWorker(request.ocrLangs ?? Settings.defaults.ocrLangs);
+          await getWorker(request.ocrLangs ?? FALLBACK_OCR_LANG);
           sendResponse(true);
         } catch (e) {
           sendResponse(false);

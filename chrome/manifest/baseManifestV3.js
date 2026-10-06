@@ -42,6 +42,15 @@ module.exports = {
       run_at: "document_end",
     },
     {
+      // reads the book language from KCR's own requests, so it has to run in the page's world
+      // before KCR starts
+      matches: kindleCloudReaderMatches.map(makeUrl),
+      js: ["bookLang.js"],
+      run_at: "document_start",
+      all_frames: true,
+      world: "MAIN",
+    },
+    {
       matches: kindleCloudReaderMatches.map(makeUrl),
       js: ["index.js"],
       run_at: "document_end",

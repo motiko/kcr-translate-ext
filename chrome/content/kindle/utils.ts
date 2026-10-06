@@ -1,5 +1,5 @@
 import { waitUntilNotNull } from "../utils";
-import { IDimensions } from "../../const";
+import { bookLangDataKey, IDimensions, ocrLangsForBook } from "../../const";
 
 const kindleIframeId = "KindleReaderIFrame";
 const kindleContentAreaId = "kindleReader_content";
@@ -40,6 +40,10 @@ export const waitForKindleCenter = async (): Promise<IKindleCenterElements> => {
   };
   return waitUntilNotNull(kindleElementsGetter);
 };
+
+// The OCR language for the open book, as detected by the bookLang content script.
+export const getOcrLangs = (): string =>
+  ocrLangsForBook(document.documentElement.dataset[bookLangDataKey]);
 
 export const isKindleText = (e: HTMLElement) => e.classList.contains(kindleTextClass);
 export const getAllTexts = (kindleElements: IKindleCenterElements): HTMLSpanElement[] =>
