@@ -82,9 +82,13 @@ You need the [gcloud CLI](https://cloud.google.com/sdk/docs/install), a Google C
 
    The condition uses the repository's numeric ID, not its name, so a renamed or recreated repository with the same name can't use the pool.
 
-2. In the [Developer Dashboard](https://chrome.google.com/webstore/devconsole), open **Account** and add the service account email (`cws-publisher@<project-id>.iam.gserviceaccount.com`). A publisher can have only one service account.
+   Right after creating a project, Google can take a minute to apply your owner role. If a command fails with `IAM_PERMISSION_DENIED`, wait a moment and run it again.
 
-3. Note the publisher ID (dashboard: **Publisher > Settings**) and the extension's item ID (the 32-letter ID in its store URL), then set the repository variables:
+2. In the [Developer Dashboard](https://chrome.google.com/webstore/devconsole), select the publisher that owns the extension (dropdown at the top right), open **Settings**, and add the service account email (`cws-publisher@<project-id>.iam.gserviceaccount.com`) in the **Service account** section. A publisher can have only one service account.
+
+   Don't use **Invite member** for it: an invitation only takes effect once it's accepted by email, which a service account can't do, so it stays "Pending" and the API answers `403`. Also don't create a new publisher for it: a new publisher is empty, and each account can create only a limited number.
+
+3. Note the publisher ID, shown in the publisher's **Settings**, and the extension's item ID (the 32-letter ID in its store URL). The ID in the dashboard's address bar is a different ID, which the API rejects with `403`. Then set the repository variables:
 
    ```sh
    gh variable set CWS_PUBLISHER_ID --body "<publisher id>"
@@ -103,7 +107,7 @@ You need the [gcloud CLI](https://cloud.google.com/sdk/docs/install), a Google C
    gh run watch "$(gh run list --workflow=publish-chrome-web-store.yml --limit 1 --json databaseId --jq '.[0].databaseId')"
    ```
 
-   The run summary shows the published and the submitted version.
+   The run summary shows the published and the submitted version. A `403 PERMISSION_DENIED` ("or it might not exist") means the service account isn't in the publisher's **Service account** section, or `CWS_PUBLISHER_ID` is wrong.
 
 Publishing requires 2-step verification on the Google account that owns the developer account.
 
